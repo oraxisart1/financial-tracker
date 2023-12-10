@@ -2,13 +2,17 @@
 
 namespace Tests\Feature\Transaction;
 
+use App\Enums\TransactionType;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class UpdateTransactionTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_user_can_update_their_own_transaction(): void
     {
         $user = User::factory()->create();
@@ -17,6 +21,7 @@ class UpdateTransactionTest extends TestCase
             'amount' => 1000,
             'description' => 'Old description',
             'date' => Carbon::parse('2023-11-11'),
+            'type' => TransactionType::INCOME,
         ]);
 
         $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
@@ -91,11 +96,7 @@ class UpdateTransactionTest extends TestCase
             'date' => Carbon::parse('2023-11-11'),
         ]);
 
-        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
-            'amount' => '2000',
-            'description' => 'New description',
-            'date' => '',
-        ]);
+        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", $this->validParams(['date' => '']));
 
         $response->assertSessionHasErrors('date');
         tap($transaction->fresh(), function (Transaction $transaction) {
@@ -111,11 +112,10 @@ class UpdateTransactionTest extends TestCase
             'date' => Carbon::parse('2023-11-11'),
         ]);
 
-        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
-            'amount' => '2000',
-            'description' => 'New description',
-            'date' => 'not-date',
-        ]);
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['date' => 'not-date'])
+        );
 
         $response->assertSessionHasErrors('date');
         tap($transaction->fresh(), function (Transaction $transaction) {
@@ -131,11 +131,10 @@ class UpdateTransactionTest extends TestCase
             'amount' => 1000,
         ]);
 
-        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
-            'amount' => '',
-            'description' => 'New description',
-            'date' => '2024-11-11',
-        ]);
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['amount' => ''])
+        );
 
         $response->assertSessionHasErrors('amount');
         tap($transaction->fresh(), function (Transaction $transaction) {
@@ -151,11 +150,10 @@ class UpdateTransactionTest extends TestCase
             'amount' => 1000,
         ]);
 
-        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
-            'amount' => 'not-numeric',
-            'description' => 'New description',
-            'date' => '2024-11-11',
-        ]);
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['amount' => 'not-numeric'])
+        );
 
         $response->assertSessionHasErrors('amount');
         tap($transaction->fresh(), function (Transaction $transaction) {
@@ -171,11 +169,10 @@ class UpdateTransactionTest extends TestCase
             'amount' => 1000,
         ]);
 
-        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
-            'amount' => '0',
-            'description' => 'New description',
-            'date' => '2024-11-11',
-        ]);
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['amount' => '0'])
+        );
 
         $response->assertSessionHasErrors('amount');
         tap($transaction->fresh(), function (Transaction $transaction) {
@@ -191,15 +188,24 @@ class UpdateTransactionTest extends TestCase
             'description' => 'Old description',
         ]);
 
-        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
-            'amount' => '2000',
-            'description' => '',
-            'date' => '2024-11-11',
-        ]);
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['description' => ''])
+        );
 
         $response->assertSessionHasNoErrors();
         tap($transaction->fresh(), function (Transaction $transaction) {
             $this->assertNull($transaction->description);
         });
+    }
+
+    private function validParams(array $overrides = []): array
+    {
+        return [
+            'amount' => '2000',
+            'description' => 'New description',
+            'date' => '2024-11-11',
+            ...$overrides,
+        ];
     }
 }

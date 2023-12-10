@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\TransactionType;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
@@ -24,6 +25,7 @@ class TransactionFactory extends Factory
             'description' => 'Test transaction',
             'date' => Carbon::parse('-3 days'),
             'user_id' => fn() => User::factory()->create()->id,
+            'type' => TransactionType::EXPENSE,
         ];
     }
 }

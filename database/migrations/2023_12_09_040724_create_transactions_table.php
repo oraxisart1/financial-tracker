@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TransactionType;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,6 +18,7 @@ return new class extends Migration {
             $table->date('date');
             $table->string('description')->nullable();
             $table->foreignIdFor(User::class);
+            $table->enum('type', TransactionType::values());
             $table->timestamps();
         });
     }

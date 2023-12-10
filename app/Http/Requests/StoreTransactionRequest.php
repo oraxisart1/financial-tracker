@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\TransactionType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreTransactionRequest extends FormRequest
 {
@@ -18,6 +20,7 @@ class StoreTransactionRequest extends FormRequest
             'date' => ['required', 'date'],
             'amount' => ['required', 'numeric', 'gt:0'],
             'description' => ['nullable'],
+            'type' => ['required', Rule::enum(TransactionType::class)],
         ];
     }
 }
