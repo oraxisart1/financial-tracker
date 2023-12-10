@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Transaction;
 
+use App\Enums\TransactionType;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
@@ -20,6 +21,7 @@ class CreateTransactionTest extends TestCase
             'date' => '2023-01-01',
             'amount' => 1000,
             'description' => 'Test transaction',
+            'type' => TransactionType::INCOME->value,
         ]);
 
         $response->assertSessionHasNoErrors();
@@ -29,16 +31,13 @@ class CreateTransactionTest extends TestCase
             $this->assertEquals(Carbon::parse('2023-01-01'), $transaction->date);
             $this->assertEquals(1000, $transaction->amount);
             $this->assertEquals('Test transaction', $transaction->description);
+            $this->assertEquals(TransactionType::INCOME, $transaction->type);
         });
     }
 
     public function test_guest_cannot_create_transaction()
     {
-        $response = $this->from('/dashboard')->post('/transactions', [
-            'date' => '2023-01-01',
-            'amount' => 1000,
-            'description' => 'Test transaction',
-        ]);
+        $response = $this->from('/dashboard')->post('/transactions', $this->validParams());
 
         $response->assertRedirectToRoute('login');
     }
@@ -47,11 +46,10 @@ class CreateTransactionTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post('/transactions', [
-            'amount' => 1000,
-            'description' => 'Test transaction',
-            'date' => '',
-        ]);
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['date' => ''])
+        );
 
         $response->assertSessionHasErrors('date');
         $this->assertCount(0, Transaction::all());
@@ -61,11 +59,10 @@ class CreateTransactionTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post('/transactions', [
-            'amount' => 1000,
-            'description' => 'Test transaction',
-            'date' => 'not-date',
-        ]);
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['date' => 'not-date'])
+        );
 
         $response->assertSessionHasErrors('date');
         $this->assertCount(0, Transaction::all());
@@ -75,11 +72,10 @@ class CreateTransactionTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post('/transactions', [
-            'date' => '2023-01-01',
-            'description' => 'Test transaction',
-            'amount' => '',
-        ]);
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['amount' => ''])
+        );
 
         $response->assertSessionHasErrors('amount');
         $this->assertCount(0, Transaction::all());
@@ -89,11 +85,10 @@ class CreateTransactionTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post('/transactions', [
-            'date' => '2023-01-01',
-            'description' => 'Test transaction',
-            'amount' => 'not-numeric',
-        ]);
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['amount' => 'not-numeric'])
+        );
 
         $response->assertSessionHasErrors('amount');
         $this->assertCount(0, Transaction::all());
@@ -103,11 +98,10 @@ class CreateTransactionTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post('/transactions', [
-            'date' => '2023-01-01',
-            'description' => 'Test transaction',
-            'amount' => '0',
-        ]);
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['amount' => '0'])
+        );
 
         $response->assertSessionHasErrors('amount');
         $this->assertCount(0, Transaction::all());
@@ -117,12 +111,49 @@ class CreateTransactionTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post('/transactions', [
-            'date' => '2023-01-01',
-            'amount' => 1000,
-        ]);
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['description' => ''])
+        );
 
         $response->assertSessionHasNoErrors();
         $this->assertCount(1, Transaction::all());
+    }
+
+    public function test_type_is_required(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['type' => ''])
+        );
+
+        $response->assertSessionHasErrors('type');
+        $this->assertCount(0, Transaction::all());
+    }
+
+    public function test_type_must_be_valid_type(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['type' => 'not-valid-type'])
+        );
+
+        $response->assertSessionHasErrors('type');
+        $this->assertCount(0, Transaction::all());
+    }
+
+    private function validParams(array $overrides = []): array
+    {
+        return [
+            'date' => '2023-01-01',
+            'amount' => 1000,
+            'description' => 'Test transaction',
+            'type' => TransactionType::INCOME->value,
+            ...$overrides,
+        ];
     }
 }
