@@ -3,6 +3,7 @@
 namespace Tests\Feature\Transaction;
 
 use App\Enums\TransactionType;
+use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
@@ -22,12 +23,14 @@ class UpdateTransactionTest extends TestCase
             'description' => 'Old description',
             'date' => Carbon::parse('2023-11-11'),
             'type' => TransactionType::INCOME,
+            'currency_id' => Currency::findByCode('USD'),
         ]);
 
         $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
             'amount' => '2000',
             'description' => 'New description',
             'date' => '2024-11-11',
+            'currency' => 'EUR',
         ]);
 
         $response->assertSessionHasNoErrors();
@@ -35,6 +38,7 @@ class UpdateTransactionTest extends TestCase
             $this->assertEqualsWithDelta(2000, $transaction->amount, 0.0001);
             $this->assertEquals('New description', $transaction->description);
             $this->assertEquals(Carbon::parse('2024-11-11'), $transaction->date);
+            $this->assertTrue($transaction->currency->is(Currency::findByCode('EUR')));
         });
     }
 
@@ -196,6 +200,44 @@ class UpdateTransactionTest extends TestCase
         $response->assertSessionHasNoErrors();
         tap($transaction->fresh(), function (Transaction $transaction) {
             $this->assertNull($transaction->description);
+        });
+    }
+
+    public function test_currency_is_required(): void
+    {
+        $user = User::factory()->create();
+        $transaction = Transaction::factory()->create([
+            'user_id' => $user->id,
+            'currency_id' => Currency::findByCode('USD'),
+        ]);
+
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['currency' => ''])
+        );
+
+        $response->assertSessionHasErrors('currency');
+        tap($transaction->fresh(), function (Transaction $transaction) {
+            $this->assertTrue($transaction->currency->is(Currency::findByCode('USD')));
+        });
+    }
+
+    public function test_currency_must_be_existing_currency(): void
+    {
+        $user = User::factory()->create();
+        $transaction = Transaction::factory()->create([
+            'user_id' => $user->id,
+            'currency_id' => Currency::findByCode('USD'),
+        ]);
+
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['currency' => 'NOT-EXISTING-CURRENCY'])
+        );
+
+        $response->assertSessionHasErrors('currency');
+        tap($transaction->fresh(), function (Transaction $transaction) {
+            $this->assertTrue($transaction->currency->is(Currency::findByCode('USD')));
         });
     }
 
