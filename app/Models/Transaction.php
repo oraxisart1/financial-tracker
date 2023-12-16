@@ -19,6 +19,7 @@ class Transaction extends Model
         'user_id',
         'type',
         'currency_id',
+        'category_id',
     ];
 
     protected $casts = [
@@ -37,5 +38,15 @@ class Transaction extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 }

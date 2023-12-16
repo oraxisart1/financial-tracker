@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\TransactionType;
+use App\Models\Category;
 use App\Models\Currency;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -23,6 +24,7 @@ class StoreTransactionRequest extends FormRequest
             'description' => ['nullable'],
             'type' => ['required', Rule::enum(TransactionType::class)],
             'currency' => ['required', Rule::exists(Currency::class, 'code')],
+            'category_id' => ['required', Rule::exists(Category::class, 'id')],
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Transaction;
 
 use App\Enums\TransactionType;
+use App\Models\Category;
 use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
@@ -16,7 +17,9 @@ class CreateTransactionTest extends TestCase
 
     public function test_user_can_create_transaction(): void
     {
+        $this->withoutExceptionHandling();
         $user = User::factory()->create();
+        $category = Category::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post('/transactions', [
             'date' => '2023-01-01',
@@ -24,17 +27,20 @@ class CreateTransactionTest extends TestCase
             'description' => 'Test transaction',
             'type' => TransactionType::INCOME->value,
             'currency' => 'USD',
+            'category_id' => $category->id,
         ]);
 
         $response->assertSessionHasNoErrors();
         $this->assertCount(1, Transaction::all());
-        tap(Transaction::first(), function (Transaction $transaction) use ($user) {
+        tap(Transaction::first(), function (Transaction $transaction) use ($user, $category) {
+            $this->assertTrue($transaction->user->is($user));
             $this->assertEquals($user->id, $transaction->user_id);
             $this->assertEquals(Carbon::parse('2023-01-01'), $transaction->date);
             $this->assertEquals(1000, $transaction->amount);
             $this->assertEquals('Test transaction', $transaction->description);
             $this->assertEquals(TransactionType::INCOME, $transaction->type);
             $this->assertTrue($transaction->currency->is(Currency::findByCode('USD')));
+            $this->assertTrue($transaction->category->is($category));
         });
     }
 
@@ -176,6 +182,32 @@ class CreateTransactionTest extends TestCase
         $this->assertCount(0, Transaction::all());
     }
 
+    public function test_category_is_required(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['category_id' => ''])
+        );
+
+        $response->assertSessionHasErrors('category_id');
+        $this->assertCount(0, Transaction::all());
+    }
+
+    public function test_category_must_be_existing_category(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['category_id' => '999'])
+        );
+
+        $response->assertSessionHasErrors('category_id');
+        $this->assertCount(0, Transaction::all());
+    }
+
     private function validParams(array $overrides = []): array
     {
         return [
@@ -184,6 +216,7 @@ class CreateTransactionTest extends TestCase
             'description' => 'Test transaction',
             'type' => TransactionType::INCOME->value,
             'currency' => 'USD',
+            'category_id' => Category::factory()->create()->id,
             ...$overrides,
         ];
     }

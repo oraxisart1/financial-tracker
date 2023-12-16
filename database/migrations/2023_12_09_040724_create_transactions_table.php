@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TransactionType;
+use App\Models\Category;
 use App\Models\Currency;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -20,6 +21,7 @@ return new class extends Migration {
             $table->string('description')->nullable();
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Currency::class);
+            $table->foreignIdFor(Category::class);
             $table->enum('type', TransactionType::values());
             $table->timestamps();
         });
