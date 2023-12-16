@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionsController;
@@ -30,6 +31,10 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:update,transaction');
     Route::delete('/transactions/{transaction}', [TransactionsController::class, 'destroy'])
         ->middleware('can:destroy,transaction');
+
+    Route::post('/categories', [CategoriesController::class, 'store']);
+    Route::patch('/categories/{category}', [CategoriesController::class, 'update'])
+        ->middleware('can:update,category');
 });
 
 Route::middleware('auth')->group(function () {

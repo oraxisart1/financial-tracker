@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Category;
 use App\Models\Currency;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -21,6 +22,7 @@ class UpdateTransactionRequest extends FormRequest
             'amount' => ['required', 'numeric', 'gt:0'],
             'description' => ['nullable'],
             'currency' => ['required', Rule::exists(Currency::class, 'code')],
+            'category_id' => ['required', Rule::exists(Category::class, 'id')],
         ];
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-use App\Enums\TransactionType;
-use App\Models\Category;
-use App\Models\Currency;
+use App\Enums\CategoryType;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,15 +12,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->decimal('amount', 19, 4);
-            $table->date('date');
-            $table->string('description')->nullable();
+            $table->string('title');
+            $table->enum('type', CategoryType::values());
+            $table->string('color');
             $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Currency::class);
-            $table->foreignIdFor(Category::class);
-            $table->enum('type', TransactionType::values());
             $table->timestamps();
         });
     }
@@ -32,6 +27,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('categories');
     }
 };

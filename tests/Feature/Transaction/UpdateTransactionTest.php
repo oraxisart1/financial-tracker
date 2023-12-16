@@ -3,6 +3,7 @@
 namespace Tests\Feature\Transaction;
 
 use App\Enums\TransactionType;
+use App\Models\Category;
 use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
@@ -17,6 +18,7 @@ class UpdateTransactionTest extends TestCase
     public function test_user_can_update_their_own_transaction(): void
     {
         $user = User::factory()->create();
+        $category = Category::factory()->create();
         $transaction = Transaction::factory()->create([
             'user_id' => $user->id,
             'amount' => 1000,
@@ -24,21 +26,25 @@ class UpdateTransactionTest extends TestCase
             'date' => Carbon::parse('2023-11-11'),
             'type' => TransactionType::INCOME,
             'currency_id' => Currency::findByCode('USD'),
+            'category_id' => $category->id,
         ]);
 
+        $newCategory = Category::factory()->create();
         $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
             'amount' => '2000',
             'description' => 'New description',
             'date' => '2024-11-11',
             'currency' => 'EUR',
+            'category_id' => $newCategory->id,
         ]);
 
         $response->assertSessionHasNoErrors();
-        tap($transaction->fresh(), function (Transaction $transaction) {
+        tap($transaction->fresh(), function (Transaction $transaction) use ($newCategory) {
             $this->assertEqualsWithDelta(2000, $transaction->amount, 0.0001);
             $this->assertEquals('New description', $transaction->description);
             $this->assertEquals(Carbon::parse('2024-11-11'), $transaction->date);
             $this->assertTrue($transaction->currency->is(Currency::findByCode('EUR')));
+            $this->assertTrue($transaction->category->is($newCategory));
         });
     }
 
@@ -241,12 +247,53 @@ class UpdateTransactionTest extends TestCase
         });
     }
 
+    public function test_category_is_required(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+        $transaction = Transaction::factory()->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['category_id' => ''])
+        );
+
+        $response->assertSessionHasErrors('category_id');
+        tap($transaction->fresh(), function (Transaction $transaction) use ($category) {
+            $this->assertTrue($transaction->category->is($category));
+        });
+    }
+
+    public function test_category_must_be_existing_category(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+        $transaction = Transaction::factory()->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['category_id' => '999'])
+        );
+
+        $response->assertSessionHasErrors('category_id');
+        tap($transaction->fresh(), function (Transaction $transaction) use ($category) {
+            $this->assertTrue($transaction->category->is($category));
+        });
+    }
+
     private function validParams(array $overrides = []): array
     {
         return [
             'amount' => '2000',
             'description' => 'New description',
             'date' => '2024-11-11',
+            'currency' => 'USD',
             ...$overrides,
         ];
     }

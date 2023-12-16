@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\TransactionType;
+use App\Models\Category;
 use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
@@ -28,6 +29,7 @@ class TransactionFactory extends Factory
             'user_id' => fn() => User::factory()->create()->id,
             'type' => TransactionType::EXPENSE,
             'currency_id' => fn() => Currency::findByCode('USD')->id,
+            'category_id' => fn() => Category::factory()->create()->id,
         ];
     }
 }
