@@ -17,5 +17,6 @@ class TransactionTest extends TestCase
         $expenses = Transaction::factory(5)->create(['type' => TransactionType::EXPENSE]);
 
         self::assertCount(3, Transaction::ofType(TransactionType::INCOME)->get());
+        self::assertCount(5, Transaction::ofType(TransactionType::EXPENSE)->get());
     }
 }

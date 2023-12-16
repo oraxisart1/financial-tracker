@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\TransactionType;
+use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
@@ -26,6 +27,7 @@ class TransactionFactory extends Factory
             'date' => Carbon::parse('-3 days'),
             'user_id' => fn() => User::factory()->create()->id,
             'type' => TransactionType::EXPENSE,
+            'currency_id' => fn() => Currency::findByCode('USD')->id,
         ];
     }
 }

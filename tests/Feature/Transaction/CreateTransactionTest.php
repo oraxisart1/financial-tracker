@@ -3,6 +3,7 @@
 namespace Tests\Feature\Transaction;
 
 use App\Enums\TransactionType;
+use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
@@ -22,6 +23,7 @@ class CreateTransactionTest extends TestCase
             'amount' => 1000,
             'description' => 'Test transaction',
             'type' => TransactionType::INCOME->value,
+            'currency' => 'USD',
         ]);
 
         $response->assertSessionHasNoErrors();
@@ -32,6 +34,7 @@ class CreateTransactionTest extends TestCase
             $this->assertEquals(1000, $transaction->amount);
             $this->assertEquals('Test transaction', $transaction->description);
             $this->assertEquals(TransactionType::INCOME, $transaction->type);
+            $this->assertTrue($transaction->currency->is(Currency::findByCode('USD')));
         });
     }
 
@@ -109,6 +112,7 @@ class CreateTransactionTest extends TestCase
 
     public function test_description_is_optional(): void
     {
+        $this->withoutExceptionHandling();
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
@@ -146,6 +150,32 @@ class CreateTransactionTest extends TestCase
         $this->assertCount(0, Transaction::all());
     }
 
+    public function test_currency_is_required(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['currency' => ''])
+        );
+
+        $response->assertSessionHasErrors('currency');
+        $this->assertCount(0, Transaction::all());
+    }
+
+    public function test_currency_must_be_existing_currency(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/dashboard')->post(
+            '/transactions',
+            $this->validParams(['currency' => 'NOT-EXISTING-CURRENCY'])
+        );
+
+        $response->assertSessionHasErrors('currency');
+        $this->assertCount(0, Transaction::all());
+    }
+
     private function validParams(array $overrides = []): array
     {
         return [
@@ -153,6 +183,7 @@ class CreateTransactionTest extends TestCase
             'amount' => 1000,
             'description' => 'Test transaction',
             'type' => TransactionType::INCOME->value,
+            'currency' => 'USD',
             ...$overrides,
         ];
     }
