@@ -3,6 +3,7 @@
 namespace Tests\Feature\Transaction;
 
 use App\Enums\TransactionType;
+use App\Models\Account;
 use App\Models\Category;
 use App\Models\Currency;
 use App\Models\Transaction;
@@ -19,6 +20,7 @@ class UpdateTransactionTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create();
+        $account = Account::factory()->create();
         $transaction = Transaction::factory()->create([
             'user_id' => $user->id,
             'amount' => 1000,
@@ -27,30 +29,36 @@ class UpdateTransactionTest extends TestCase
             'type' => TransactionType::INCOME,
             'currency_id' => Currency::findByCode('USD'),
             'category_id' => $category->id,
+            'account_id' => $account->id,
         ]);
 
         $newCategory = Category::factory()->create();
+        $newAccount = Account::factory()->create();
         $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
             'amount' => '2000',
             'description' => 'New description',
             'date' => '2024-11-11',
             'currency' => 'EUR',
             'category_id' => $newCategory->id,
+            'account_id' => $newAccount->id,
         ]);
 
         $response->assertSessionHasNoErrors();
-        tap($transaction->fresh(), function (Transaction $transaction) use ($newCategory) {
+        tap($transaction->fresh(), function (Transaction $transaction) use ($newCategory, $newAccount) {
             $this->assertEqualsWithDelta(2000, $transaction->amount, 0.0001);
             $this->assertEquals('New description', $transaction->description);
             $this->assertEquals(Carbon::parse('2024-11-11'), $transaction->date);
             $this->assertTrue($transaction->currency->is(Currency::findByCode('EUR')));
             $this->assertTrue($transaction->category->is($newCategory));
+            $this->assertTrue($transaction->account->is($newAccount));
         });
     }
 
     public function test_user_cannot_update_other_transaction(): void
     {
         $user = User::factory()->create();
+        $category = Category::factory()->create();
+        $account = Account::factory()->create();
         $otherUser = User::factory()->create();
 
         $transaction = Transaction::factory()->create([
@@ -58,43 +66,68 @@ class UpdateTransactionTest extends TestCase
             'amount' => 1000,
             'description' => 'Old description',
             'date' => Carbon::parse('2023-11-11'),
+            'currency_id' => Currency::findByCode('USD'),
+            'category_id' => $category->id,
+            'account_id' => $account->id,
         ]);
 
+        $newCategory = Category::factory()->create();
+        $newAccount = Account::factory()->create();
         $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
             'amount' => '2000',
             'description' => 'New description',
             'date' => '2024-11-11',
+            'currency' => 'EUR',
+            'category_id' => $newCategory->id,
+            'account_id' => $newAccount->id,
         ]);
 
         $response->assertStatus(404);
-        tap($transaction->fresh(), function (Transaction $transaction) {
+        tap($transaction->fresh(), function (Transaction $transaction) use ($category, $account) {
             $this->assertEqualsWithDelta(1000, $transaction->amount, 0.0001);
             $this->assertEquals('Old description', $transaction->description);
             $this->assertEquals(Carbon::parse('2023-11-11'), $transaction->date);
+            $this->assertTrue($transaction->currency->is(Currency::findByCode('USD')));
+            $this->assertTrue($transaction->category->is($category));
+            $this->assertTrue($transaction->account->is($account));
         });
     }
 
     public function test_guest_cannot_update_any_transaction(): void
     {
         $user = User::factory()->create();
+        $category = Category::factory()->create();
+        $account = Account::factory()->create();
+
         $transaction = Transaction::factory()->create([
             'user_id' => $user->id,
             'amount' => 1000,
             'description' => 'Old description',
             'date' => Carbon::parse('2023-11-11'),
+            'currency_id' => Currency::findByCode('USD'),
+            'category_id' => $category->id,
+            'account_id' => $account->id,
         ]);
 
+        $newCategory = Category::factory()->create();
+        $newAccount = Account::factory()->create();
         $response = $this->patch("/transactions/$transaction->id", [
             'amount' => '2000',
             'description' => 'New description',
             'date' => '2024-11-11',
+            'currency' => 'EUR',
+            'category_id' => $newCategory->id,
+            'account_id' => $newAccount->id,
         ]);
 
         $response->assertRedirectToRoute('login');
-        tap($transaction->fresh(), function (Transaction $transaction) {
+        tap($transaction->fresh(), function (Transaction $transaction) use ($category, $account) {
             $this->assertEqualsWithDelta(1000, $transaction->amount, 0.0001);
             $this->assertEquals('Old description', $transaction->description);
             $this->assertEquals(Carbon::parse('2023-11-11'), $transaction->date);
+            $this->assertTrue($transaction->currency->is(Currency::findByCode('USD')));
+            $this->assertTrue($transaction->category->is($category));
+            $this->assertTrue($transaction->account->is($account));
         });
     }
 
@@ -287,6 +320,46 @@ class UpdateTransactionTest extends TestCase
         });
     }
 
+    public function test_account_is_required(): void
+    {
+        $user = User::factory()->create();
+        $account = Account::factory()->create();
+        $transaction = Transaction::factory()->create([
+            'user_id' => $user->id,
+            'account_id' => $account->id,
+        ]);
+
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['account_id' => ''])
+        );
+
+        $response->assertSessionHasErrors('account_id');
+        tap($transaction->fresh(), function (Transaction $transaction) use ($account) {
+            $this->assertTrue($transaction->account->is($account));
+        });
+    }
+
+    public function test_account_must_be_existing_account(): void
+    {
+        $user = User::factory()->create();
+        $account = Account::factory()->create();
+        $transaction = Transaction::factory()->create([
+            'user_id' => $user->id,
+            'account_id' => $account->id,
+        ]);
+
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams(['account_id' => '999'])
+        );
+
+        $response->assertSessionHasErrors('account_id');
+        tap($transaction->fresh(), function (Transaction $transaction) use ($account) {
+            $this->assertTrue($transaction->account->is($account));
+        });
+    }
+
     private function validParams(array $overrides = []): array
     {
         return [
@@ -294,6 +367,8 @@ class UpdateTransactionTest extends TestCase
             'description' => 'New description',
             'date' => '2024-11-11',
             'currency' => 'USD',
+            'category_id' => Category::factory()->create()->id,
+            'account_id' => Account::factory()->create()->id,
             ...$overrides,
         ];
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -35,6 +36,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/categories', [CategoriesController::class, 'store']);
     Route::patch('/categories/{category}', [CategoriesController::class, 'update'])
         ->middleware('can:update,category');
+
+    Route::get('/accounts', [AccountsController::class, 'index'])->name('accounts.index');
+    Route::post('/accounts', [AccountsController::class, 'store'])->name('accounts.store');
+    Route::patch('/accounts/{account}', [AccountsController::class, 'update'])->name('accounts.update')
+        ->middleware('can:update,account');
 });
 
 Route::middleware('auth')->group(function () {

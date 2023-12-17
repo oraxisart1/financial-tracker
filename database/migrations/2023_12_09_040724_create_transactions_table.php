@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TransactionType;
+use App\Models\Account;
 use App\Models\Category;
 use App\Models\Currency;
 use App\Models\User;
@@ -22,6 +23,7 @@ return new class extends Migration {
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Currency::class);
             $table->foreignIdFor(Category::class);
+            $table->foreignIdFor(Account::class);
             $table->enum('type', TransactionType::values());
             $table->timestamps();
         });
