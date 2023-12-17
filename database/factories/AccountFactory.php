@@ -2,10 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Account;
+use App\Models\Currency;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Account>
+ * @extends Factory<Account>
  */
 class AccountFactory extends Factory
 {
@@ -17,7 +20,11 @@ class AccountFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => 'Test Account',
+            'currency_id' => Currency::findByCode('USD')->id,
+            'balance' => '1000',
+            'color' => '#FF0000',
+            'user_id' => fn() => User::factory()->create()->id,
         ];
     }
 }
