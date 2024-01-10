@@ -72,10 +72,14 @@ watch(serializedFilter, (value, oldValue) => {
         </q-tab>
     </q-tabs>
 
-    <TransactionsTable
-        :categories="page.props.categories"
-        :filter="filter"
-        :transactions="page.props.transactions"
-        @select-category="onCategorySelect"
-    />
+    <div class="tw-flex tw-p-4 tw-gap-x-8 tw-max-h-[90%] tw-min-h-0">
+        <div class="tw-flex-grow tw-flex-1"></div>
+
+        <TransactionsTable
+            :categories="page.props.categories"
+            :filter="filter"
+            :transactions="page.props.transactions"
+            @select-category="onCategorySelect"
+        />
+    </div>
 </template>
