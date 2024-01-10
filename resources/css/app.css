@@ -17,7 +17,7 @@
     }
 
     *::-webkit-scrollbar {
-        width: 4px; /* Adjust the width as needed */
+        width: 6px; /* Adjust the width as needed */
     }
 
     *::-webkit-scrollbar-thumb {
