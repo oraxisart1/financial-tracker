@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        overflow: hidden;
+        min-height: 100vh;
+        background-color: theme('colors.stone.50');
+        color: #2F3527;
+    }
+
+    *::-webkit-scrollbar {
+        width: 4px; /* Adjust the width as needed */
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: #888; /* Color of the scrollbar thumb */
+        border-radius: 4px; /* Rounded corners */
+    }
+}

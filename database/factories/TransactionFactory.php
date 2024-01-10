@@ -24,9 +24,9 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'amount' => 1000.0000,
-            'description' => 'Test transaction',
-            'date' => Carbon::parse('-3 days'),
+            'amount' => fake()->randomFloat(),
+            'description' => fake()->text(),
+            'date' => Carbon::parse(fake()->date()),
             'user_id' => fn() => User::factory()->create()->id,
             'type' => TransactionType::EXPENSE,
             'currency_id' => fn() => Currency::findByCode('USD')->id,
