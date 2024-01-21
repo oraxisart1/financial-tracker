@@ -22,6 +22,7 @@
     "dependencies": {
         "@heroicons/vue": "^2.1.1",
         "@quasar/extras": "^1.16.9",
+        "@vuepic/vue-datepicker": "^7.4.1",
         "date-fns": "^3.2.0",
         "quasar": "^2.14.2"
     }

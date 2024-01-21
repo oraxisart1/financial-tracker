@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\CategoryType;
 use App\Enums\TransactionType;
 use App\Http\Resources\TransactionResource;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -22,10 +23,20 @@ class DashboardController extends Controller
             return redirect()->route('dashboard', ['transaction_type' => TransactionType::EXPENSE->value]);
         }
 
+        $dateFrom = $request->get('date_from')
+            ? Carbon::parse($request->get('date_from'))
+            : Carbon::parse(date('Y-m-01'));
+
+        $dateTo = $request->get('date_to')
+            ? Carbon::parse($request->get('date_to'))
+            : Carbon::parse(date('Y-m-t'));
+
         $transactionsQuery = Auth::user()
             ->transactions()
             ->with(['category', 'account', 'currency'])
-            ->ofType($transactionsType);
+            ->ofType($transactionsType)
+            ->where('date', '>=', $dateFrom)
+            ->where('date', '<=', $dateTo);
 
         if ($request->get('category')) {
             $transactionsQuery->where('category_id', $request->get('category'));

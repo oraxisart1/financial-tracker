@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
@@ -162,5 +163,39 @@ class DashboardTest extends TestCase
         $response->assertInertia(fn(AssertableInertia $page) => $page
             ->component('Dashboard')
             ->has('accounts', 10));
+    }
+
+    public function test_transaction_filtering_by_date()
+    {
+        $user = User::factory()->create();
+
+        $user->transactions()->saveMany([
+            Transaction::factory()->create([
+                'date' => Carbon::parse(date('2024-01-01')),
+                'user_id' => $user->id,
+                'type' => TransactionType::INCOME,
+            ]),
+            Transaction::factory()->create([
+                'date' => Carbon::parse(date('2023-01-01')),
+                'user_id' => $user->id,
+                'type' => TransactionType::INCOME,
+            ]),
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            sprintf(
+                '%s?%s',
+                '/dashboard',
+                http_build_query([
+                    'transaction_type' => TransactionType::INCOME->value,
+                    'date_from' => '2024-01-01',
+                    'date_to' => '2024-01-31',
+                ])
+            )
+        );
+
+        $response->assertInertia(fn(AssertableInertia $page) => $page
+            ->component('Dashboard')
+            ->has('transactions', 1));
     }
 }

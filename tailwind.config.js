@@ -22,6 +22,7 @@ export default {
                 teal: "#4C8286",
                 "light-pastel": "rgba(181, 210, 209, 0.7)",
                 pastel: "#B5D2D1",
+                light: "#DEE9E6",
             },
             fontSize: {
                 md: "16px",

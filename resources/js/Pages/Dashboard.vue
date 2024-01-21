@@ -4,6 +4,11 @@ import { computed, ref, watch } from "vue";
 import TransactionsTable from "@/Components/Feature/Transaction/TransactionsTable.vue";
 import AddTransactionButton from "@/Components/Feature/Transaction/AddTransactionButton.vue";
 import AddTransactionForm from "@/Components/Feature/Transaction/AddTransactionForm.vue";
+import { formatCurrency } from "../Helpers/number.js";
+import { format, lastDayOfMonth } from "date-fns";
+import DateRange from "@/Components/UI/Input/DateRange.vue";
+import TransactionsChart from "@/Components/Feature/Transaction/TransactionsChart.vue";
+import BudgetChart from "@/Components/Feature/Budget/BudgetChart.vue";
 
 const page = usePage();
 
@@ -11,6 +16,11 @@ const showAddForm = ref(false);
 const filter = ref({
     transactionType: page.props.query.transaction_type,
     category: Number(page.props.query.category || ""),
+    date: [
+        page.props.query.date_from || format(new Date(), "yyyy-MM-01"),
+        page.props.query.date_to ||
+            format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
+    ],
 });
 
 const serializedFilter = computed(() => JSON.stringify(filter.value));
@@ -37,8 +47,6 @@ watch(serializedFilter, (value, oldValue) => {
 
     const isTypeChanged = value.transactionType !== oldValue.transactionType;
     if (isTypeChanged) {
-        // showAddForm.value = false;
-
         if (filter.value.category) {
             filter.value.category = 0;
             return;
@@ -47,6 +55,8 @@ watch(serializedFilter, (value, oldValue) => {
 
     const params = {
         transaction_type: filter.value.transactionType,
+        date_from: filter.value.date[0],
+        date_to: filter.value.date[1],
     };
 
     if (filter.value.category) {
@@ -86,15 +96,44 @@ watch(serializedFilter, (value, oldValue) => {
         </q-tab>
     </q-tabs>
 
-    <div
-        :class="`tw-flex tw-p-4 tw-gap-x-8 tw-min-h-0 ${
-            showAddForm ? '' : 'tw-max-h-[89%] tw-min-h-[89%]'
-        }`"
-    >
+    <div :class="`tw-flex tw-p-4 tw-gap-x-8 tw-max-h-[89%] tw-min-h-[89%]`">
         <div
-            class="tw-flex-grow tw-flex-1 tw-flex tw-flex-col tw-justify-between tw-items-center"
+            class="tw-flex-grow tw-flex-1 tw-flex tw-flex-col tw-justify-between tw-items-center tw-gap-8"
         >
             <AddTransactionButton @click="openAddForm" />
+
+            <div
+                class="tw-bg-light-pastel tw-basis-1/2 tw-w-full tw-flex-grow tw-rounded-md tw-flex tw-flex-col tw-items-center tw-p-2 tw-gap-2.5"
+            >
+                <DateRange v-model="filter.date" />
+
+                <div class="tw-text-2xl tw-font-medium">
+                    <span>
+                        {{
+                            filter.transactionType === "expense"
+                                ? "Expenses"
+                                : "Incomes"
+                        }}
+                    </span>
+                    <span>: </span>
+                    <span>{{
+                        formatCurrency(
+                            page.props.transactions.reduce(
+                                (acc, el) => acc + Number(el.amount),
+                                0,
+                            ),
+                        )
+                    }}</span>
+                </div>
+
+                <TransactionsChart :transactions="page.props.transactions" />
+            </div>
+
+            <div
+                class="tw-bg-light-pastel tw-basis-1/4 tw-w-full tw-rounded-md tw-flex tw-justify-center"
+            >
+                <BudgetChart />
+            </div>
         </div>
 
         <div class="tw-flex-grow tw-flex-1">
@@ -117,3 +156,5 @@ watch(serializedFilter, (value, oldValue) => {
         </div>
     </div>
 </template>
+
+<style scoped></style>
