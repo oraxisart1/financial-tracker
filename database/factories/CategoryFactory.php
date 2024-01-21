@@ -21,9 +21,9 @@ class CategoryFactory extends Factory
     {
         return [
             'user_id' => fn() => User::factory()->create()->id,
-            'title' => 'Test Category',
+            'title' => fake()->text(20),
             'type' => CategoryType::EXPENSE,
-            'color' => '#FF0000',
+            'color' => fake()->hexColor(),
         ];
     }
 }

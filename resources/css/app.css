@@ -1,3 +1,43 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        overflow: hidden;
+        background-color: theme('colors.stone.50');
+        color: #2F3527;
+    }
+
+    body, #app {
+        min-height: 100vh !important;
+    }
+
+    *::-webkit-scrollbar {
+        width: 6px; /* Adjust the width as needed */
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: #888; /* Color of the scrollbar thumb */
+        border-radius: 4px; /* Rounded corners */
+    }
+
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button,
+    input[type='number'] {
+        -webkit-appearance: none;
+        margin: 0;
+        -moz-appearance: textfield !important;
+    }
+
+    input::placeholder {
+        text-align: center;
+        color: theme('colors.stone.500')
+    }
+}

@@ -11,4 +11,12 @@ enum CategoryType: string
     case INCOME = 'income';
 
     case EXPENSE = 'expense';
+
+    public static function fromTransactionType(TransactionType $transactionsType): CategoryType
+    {
+        return match ($transactionsType) {
+            TransactionType::EXPENSE => self::EXPENSE,
+            TransactionType::INCOME => self::INCOME,
+        };
+    }
 }

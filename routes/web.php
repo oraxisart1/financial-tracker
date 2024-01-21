@@ -25,28 +25,40 @@ Route::get('/', function () {
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')
+        ->name('dashboard');
 
-    Route::post('/transactions', [TransactionsController::class, 'store']);
+    Route::post('/transactions', [TransactionsController::class, 'store'])
+        ->name('transactions.store');
     Route::patch('/transactions/{transaction}', [TransactionsController::class, 'update'])
+        ->name('transactions.update')
         ->middleware('can:update,transaction');
     Route::delete('/transactions/{transaction}', [TransactionsController::class, 'destroy'])
+        ->name('transactions.destroy')
         ->middleware('can:destroy,transaction');
 
-    Route::post('/categories', [CategoriesController::class, 'store']);
+    Route::post('/categories', [CategoriesController::class, 'store'])
+        ->name('categories.store');
     Route::patch('/categories/{category}', [CategoriesController::class, 'update'])
-        ->middleware('can:update,category');
+        ->middleware('can:update,category')
+        ->name('categories.update');
 
-    Route::get('/accounts', [AccountsController::class, 'index'])->name('accounts.index');
-    Route::post('/accounts', [AccountsController::class, 'store'])->name('accounts.store');
-    Route::patch('/accounts/{account}', [AccountsController::class, 'update'])->name('accounts.update')
+    Route::get('/accounts', [AccountsController::class, 'index'])
+        ->name('accounts.index');
+    Route::post('/accounts', [AccountsController::class, 'store'])
+        ->name('accounts.store');
+    Route::patch('/accounts/{account}', [AccountsController::class, 'update'])
+        ->name('accounts.update')
         ->middleware('can:update,account');
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';

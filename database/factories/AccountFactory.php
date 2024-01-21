@@ -20,10 +20,10 @@ class AccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => 'Test Account',
+            'title' => fake()->text(10),
             'currency_id' => Currency::findByCode('USD')->id,
-            'balance' => '1000',
-            'color' => '#FF0000',
+            'balance' => fake()->randomFloat(),
+            'color' => fake()->hexColor(),
             'user_id' => fn() => User::factory()->create()->id,
         ];
     }
