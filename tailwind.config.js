@@ -14,7 +14,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["K2D", ...defaultTheme.fontFamily.sans],
+                sans: ["Roboto", ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 navigation: "#445B5E",
@@ -32,6 +32,9 @@ export default {
             },
             padding: {
                 4.5: "1.125rem",
+            },
+            gap: {
+                7.5: "1.875rem",
             },
         },
     },

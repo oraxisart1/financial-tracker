@@ -25,7 +25,15 @@ class AccountsController extends Controller
 
     public function index()
     {
-        return Inertia::render('Accounts', ['accounts' => Auth::user()->accounts]);
+        return Inertia::render(
+            'Accounts',
+            [
+                'accounts' => Auth::user()
+                    ->accounts()
+                    ->with(['currency'])
+                    ->get(),
+            ]
+        );
     }
 
     public function update(UpdateAccountRequest $request, Account $account): RedirectResponse
