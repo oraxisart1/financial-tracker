@@ -2,9 +2,12 @@
 import { Head, router, usePage } from "@inertiajs/vue3";
 import { computed, ref, watch } from "vue";
 import TransactionsTable from "@/Components/Feature/Transaction/TransactionsTable.vue";
+import AddTransactionButton from "@/Components/Feature/Transaction/AddTransactionButton.vue";
+import AddTransactionForm from "@/Components/Feature/Transaction/AddTransactionForm.vue";
 
 const page = usePage();
 
+const showAddForm = ref(false);
 const filter = ref({
     transactionType: page.props.query.transaction_type,
     category: Number(page.props.query.category || ""),
@@ -20,15 +23,26 @@ const onCategorySelect = (categoryId) => {
     filter.value.category = categoryId;
 };
 
+const openAddForm = () => {
+    showAddForm.value = true;
+};
+
+const closeAddForm = () => {
+    showAddForm.value = false;
+};
+
 watch(serializedFilter, (value, oldValue) => {
     value = JSON.parse(value);
     oldValue = JSON.parse(oldValue);
-    if (
-        value.transactionType !== oldValue.transactionType &&
-        filter.value.category
-    ) {
-        filter.value.category = 0;
-        return;
+
+    const isTypeChanged = value.transactionType !== oldValue.transactionType;
+    if (isTypeChanged) {
+        // showAddForm.value = false;
+
+        if (filter.value.category) {
+            filter.value.category = 0;
+            return;
+        }
     }
 
     const params = {
@@ -58,28 +72,48 @@ watch(serializedFilter, (value, oldValue) => {
         no-caps
     >
         <q-tab
-            class="tw-py-2 tw-text-center tw-flex-grow tw-flex-1 tw-font-medium tw-text-xl"
+            class="tw-text-center tw-flex-grow tw-flex-1 tw-font-semibold tw-text-3xl !tw-py-0.5"
             name="expense"
         >
             Expenses
         </q-tab>
 
         <q-tab
-            class="tw-py-2 tw-text-center tw-flex-grow tw-flex-1 tw-font-medium tw-text-xl"
+            class="tw-text-center tw-flex-grow tw-flex-1 tw-font-semibold tw-text-3xl !tw-py-0.5"
             name="income"
         >
             Incomes
         </q-tab>
     </q-tabs>
 
-    <div class="tw-flex tw-p-4 tw-gap-x-8 tw-max-h-[90%] tw-min-h-0">
-        <div class="tw-flex-grow tw-flex-1"></div>
+    <div
+        :class="`tw-flex tw-p-4 tw-gap-x-8 tw-min-h-0 ${
+            showAddForm ? '' : 'tw-max-h-[89%] tw-min-h-[89%]'
+        }`"
+    >
+        <div
+            class="tw-flex-grow tw-flex-1 tw-flex tw-flex-col tw-justify-between tw-items-center"
+        >
+            <AddTransactionButton @click="openAddForm" />
+        </div>
 
-        <TransactionsTable
-            :categories="page.props.categories"
-            :filter="filter"
-            :transactions="page.props.transactions"
-            @select-category="onCategorySelect"
-        />
+        <div class="tw-flex-grow tw-flex-1">
+            <TransactionsTable
+                v-show="!showAddForm"
+                :categories="page.props.categories"
+                :filter="filter"
+                :transactions="page.props.transactions"
+                @select-category="onCategorySelect"
+            />
+
+            <AddTransactionForm
+                v-if="showAddForm"
+                :accounts="page.props.accounts"
+                :categories="page.props.categories"
+                :transaction-type="filter.transactionType"
+                @cancel="closeAddForm"
+                @store="closeAddForm"
+            />
+        </div>
     </div>
 </template>

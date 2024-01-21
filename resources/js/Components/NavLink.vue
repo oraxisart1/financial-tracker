@@ -16,8 +16,8 @@ defineProps({
     <Link
         :class="`tw-text-navigation tw-font-medium tw-px-1.5 ' + ${
             active
-                ? 'tw-border-l-2 tw-border-r-2 tw-text-2xl tw-border-navigation'
-                : 'tw-text-shadow-underline'
+                ? 'tw-border-l-2 tw-border-r-2 tw-text-3xl tw-border-navigation'
+                : 'tw-text-shadow-underline tw-text-2xl'
         }`"
         :href="href"
     >

@@ -1,7 +1,9 @@
 <script setup></script>
 
 <template>
-    <div class="tw-grid tw-grid-rows-[60px_1fr] tw-max-h-screen">
+    <div
+        class="tw-grid tw-grid-rows-[70px_1fr] tw-max-h-screen tw-min-h-screen"
+    >
         <slot />
     </div>
 </template>

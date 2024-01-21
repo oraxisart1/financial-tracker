@@ -32,7 +32,8 @@ class DashboardController extends Controller
         }
 
         $transactionsQuery
-            ->orderBy('date', 'desc');
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc');
 
         $transactions = $transactionsQuery->get();
 
@@ -41,11 +42,17 @@ class DashboardController extends Controller
             ->where('type', CategoryType::fromTransactionType($transactionsType))
             ->get();
 
+        $accounts = Auth::user()
+            ->accounts()
+            ->with(['currency'])
+            ->get();
+
         return Inertia::render(
             'Dashboard',
             [
                 'transactions' => TransactionResource::collection($transactions),
                 'categories' => $categories,
+                'accounts' => $accounts,
             ]
         );
     }

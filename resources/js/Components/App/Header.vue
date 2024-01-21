@@ -15,13 +15,13 @@ import NavLink from "@/Components/NavLink.vue";
             <Navigation />
         </div>
 
-        <div class="tw-text-2xl">800000</div>
+        <div class="tw-text-3xl">800000</div>
 
-        <div class="tw-flex tw-gap-2 tw-items-center">
+        <div class="tw-flex tw-gap-[10px] tw-items-center">
             <NavLink :href="route('logout')" as="button" method="post"
                 >Log out
             </NavLink>
-            <Cog8ToothIcon class="tw-w-8 tw-h-8" />
+            <Cog8ToothIcon class="tw-w-10 tw-h-10" />
         </div>
     </div>
 </template>

@@ -11,9 +11,12 @@
 
     body {
         overflow: hidden;
-        min-height: 100vh;
         background-color: theme('colors.stone.50');
         color: #2F3527;
+    }
+
+    body, #app {
+        min-height: 100vh !important;
     }
 
     *::-webkit-scrollbar {
@@ -23,5 +26,18 @@
     *::-webkit-scrollbar-thumb {
         background-color: #888; /* Color of the scrollbar thumb */
         border-radius: 4px; /* Rounded corners */
+    }
+
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button,
+    input[type='number'] {
+        -webkit-appearance: none;
+        margin: 0;
+        -moz-appearance: textfield !important;
+    }
+
+    input::placeholder {
+        text-align: center;
+        color: theme('colors.stone.500')
     }
 }

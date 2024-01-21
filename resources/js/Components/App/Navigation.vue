@@ -3,7 +3,7 @@ import NavLink from "@/Components/NavLink.vue";
 </script>
 
 <template>
-    <div class="tw-flex tw-gap-8 tw-items-end tw-ml-4">
+    <div class="tw-flex tw-gap-14 tw-items-end tw-ml-4">
         <NavLink
             :active="$page.props.routeName === 'dashboard'"
             :href="route('dashboard')"

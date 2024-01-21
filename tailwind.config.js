@@ -23,6 +23,15 @@ export default {
                 "light-pastel": "rgba(181, 210, 209, 0.7)",
                 pastel: "#B5D2D1",
             },
+            fontSize: {
+                md: "16px",
+                xl: "20px",
+                "2xl": "24px",
+                "3xl": "32px",
+            },
+            padding: {
+                4.5: "1.125rem",
+            },
         },
     },
 

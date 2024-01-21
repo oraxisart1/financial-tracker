@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\TransactionType;
+use App\Models\Account;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
@@ -141,5 +142,25 @@ class DashboardTest extends TestCase
             ->component('Dashboard')
             ->has('transactions', 1)
             ->has('categories', 3));
+    }
+
+    public function test_dashboard_page_recieves_user_accounts()
+    {
+        $user = User::factory()->create();
+        $user->accounts()->saveMany(Account::factory(10)->make(['user_id' => $user->id]));
+
+        $response = $this->actingAs($user)->get(
+            sprintf(
+                '%s?%s',
+                '/dashboard',
+                http_build_query([
+                    'transaction_type' => TransactionType::INCOME->value,
+                ])
+            )
+        );
+
+        $response->assertInertia(fn(AssertableInertia $page) => $page
+            ->component('Dashboard')
+            ->has('accounts', 10));
     }
 }

@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-    <main class="tw-overflow-hidden">
+    <main class="tw-overflow-auto">
         <slot />
     </main>
 </template>

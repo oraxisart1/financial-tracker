@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         $user->accounts()->saveMany(
             Account::factory(10)->create([
                 'user_id' => $user->id,
-                'currency_id' => Currency::findByCode(fake()->currencyCode())->id,
+                'currency_id' => fn() => Currency::findByCode(fake()->currencyCode())->id,
             ])
         );
 
