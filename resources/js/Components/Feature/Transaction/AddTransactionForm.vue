@@ -106,7 +106,7 @@ const save = () => {
 
 <template>
     <div
-        class="tw-flex tw-flex-col tw-rounded-md tw-bg-light-pastel tw-max-h-full"
+        class="tw-flex tw-flex-col tw-rounded-md tw-bg-light-pastel tw-max-h-full tw-min-h-full tw-overflow-y-auto"
     >
         <div
             class="tw-text-white tw-p-3 tw-font-medium tw-text-2xl tw-text-center tw-bg-teal tw-rounded-t-md"
