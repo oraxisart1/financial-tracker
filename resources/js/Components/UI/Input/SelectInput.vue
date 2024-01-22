@@ -16,6 +16,9 @@ const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
 const bodyHandler = ref(null);
+const container = ref(null);
+const menu = ref(null);
+const root = ref(null);
 
 const onInput = (e) => {
     emit("update:modelValue", e.target.value);
@@ -24,7 +27,7 @@ const onInput = (e) => {
 const open = () => {
     isOpen.value = true;
     const handler = (e) => {
-        if (!e.target.closest("[data-select]")) {
+        if (!menu.value.contains(e.target) && !root.value.contains(e.target)) {
             close();
         }
     };
@@ -43,13 +46,26 @@ const selectOption = (option) => {
     emit("update:modelValue", option);
     close();
 };
+
+const onMenuEnter = () => {
+    alignMenu();
+};
+
+const alignMenu = () => {
+    menu.value.style.minWidth = `${container.value.offsetWidth}px`;
+
+    const containerRect = container.value.getBoundingClientRect();
+    menu.value.style.top = `${containerRect.y + containerRect.height}px`;
+    menu.value.style.left = `${containerRect.x}px`;
+};
 </script>
 
 <template>
-    <div class="tw-flex tw-flex-col tw-gap-1">
+    <div ref="root" class="tw-flex tw-flex-col tw-gap-1">
         <div class="tw-flex tw-items-center tw-w-full">
             <div class="tw-flex-grow tw-w-full tw-relative" data-select>
                 <div
+                    ref="container"
                     :class="`tw-bg-pastel tw-p-4 tw-w-full tw-rounded-md tw-flex tw-items-center tw-cursor-pointer tw-min-h-[56px] ${
                         error ? 'tw-border-2 tw-border-red-600' : ''
                     }`"
@@ -71,34 +87,37 @@ const selectOption = (option) => {
                     ></q-icon>
                 </div>
 
-                <Transition>
-                    <div
-                        v-show="isOpen"
-                        class="tw-absolute tw-flex tw-flex-col tw-bg-gray-100 tw-w-full tw-rounded-md tw-mt-1 tw-overflow-auto tw-max-h-[400px]"
-                    >
-                        <template v-if="options.length">
-                            <div
-                                v-for="option in options"
-                                :key="option[optionValue]"
-                                :class="`tw-p-4 tw-cursor-pointer hover:tw-bg-pastel ${
-                                    modelValue?.[optionValue] ===
-                                    option[optionValue]
-                                        ? 'tw-bg-pastel'
-                                        : ''
-                                }`"
-                                @click="selectOption(option)"
-                            >
-                                {{ option[optionLabel] }}
-                            </div>
-                        </template>
+                <Teleport to="body">
+                    <Transition @enter="onMenuEnter">
+                        <div
+                            v-show="isOpen"
+                            ref="menu"
+                            class="tw-absolute tw-flex tw-flex-col tw-bg-gray-100 tw-rounded-md tw-mt-1 tw-overflow-auto tw-max-h-[400px] tw-top-0"
+                        >
+                            <template v-if="options.length">
+                                <div
+                                    v-for="option in options"
+                                    :key="option[optionValue]"
+                                    :class="`tw-p-4 tw-cursor-pointer hover:tw-bg-pastel ${
+                                        modelValue?.[optionValue] ===
+                                        option[optionValue]
+                                            ? 'tw-bg-pastel'
+                                            : ''
+                                    }`"
+                                    @click="selectOption(option)"
+                                >
+                                    {{ option[optionLabel] }}
+                                </div>
+                            </template>
 
-                        <template v-else>
-                            <div class="tw-p-6">
-                                {{ noOptionsLabel }}
-                            </div>
-                        </template>
-                    </div>
-                </Transition>
+                            <template v-else>
+                                <div class="tw-p-6">
+                                    {{ noOptionsLabel }}
+                                </div>
+                            </template>
+                        </div>
+                    </Transition>
+                </Teleport>
             </div>
         </div>
 
