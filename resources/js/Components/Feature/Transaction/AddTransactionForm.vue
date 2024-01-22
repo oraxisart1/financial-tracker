@@ -92,7 +92,6 @@ const save = () => {
             emit("store");
         },
         onError(errors) {
-            console.log(errors);
             if (!Object.values(errors).length) {
                 quasar.notify({
                     color: "negative",
