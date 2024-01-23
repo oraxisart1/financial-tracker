@@ -67,7 +67,9 @@ const alignMenu = () => {
                 <div
                     ref="container"
                     :class="`tw-bg-pastel tw-p-4 tw-w-full tw-rounded-md tw-flex tw-items-center tw-cursor-pointer tw-min-h-[56px] ${
-                        error ? 'tw-border-2 tw-border-red-600' : ''
+                        error
+                            ? 'tw-border-2 tw-border-red-600'
+                            : 'tw-border tw-border-light'
                     }`"
                     @click="isOpen ? close() : open()"
                 >

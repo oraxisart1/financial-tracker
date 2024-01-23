@@ -18,9 +18,9 @@ const colorBaseClasses = "tw-h-10 tw-w-10 tw-rounded-full tw-cursor-pointer";
 const stateColorClasses = "tw-ring-navigation tw-ring-4";
 
 const colorsContainerBaseClasses =
-    "tw-flex tw-items-center tw-justify-between tw-border-2 tw-rounded-md tw-p-2";
+    "tw-flex tw-items-center tw-justify-between tw-rounded-md tw-p-2 tw-bg-light-pastel";
 const colorsContainerErrorClasses = computed(() =>
-    props.error ? "tw-border-red-600" : "tw-border-pastel",
+    props.error ? "tw-border-2 tw-border-red-600" : "tw-border tw-border-light",
 );
 
 const selectedColor = computed({
