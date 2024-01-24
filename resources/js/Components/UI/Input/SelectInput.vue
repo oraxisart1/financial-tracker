@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 
 const props = defineProps({
     modelValue: { type: [Object, String] },
@@ -53,8 +53,6 @@ const close = () => {
     if (bodyHandler.value) {
         document.removeEventListener("click", bodyHandler.value);
     }
-
-    clearFilter();
 };
 
 const selectOption = (option) => {
@@ -90,6 +88,10 @@ const onContainerClick = (e) => {
 const clearFilter = () => {
     filterValue.value = "";
 };
+
+const onAfterMenuLeave = () => {
+    nextTick(clearFilter);
+};
 </script>
 
 <template>
@@ -113,10 +115,7 @@ const clearFilter = () => {
                             {{ placeholder }}
                         </div>
 
-                        <div
-                            v-else
-                            class="tw-text-md tw-text-center tw-select-none"
-                        >
+                        <div v-else class="tw-text-md tw-select-none">
                             {{ modelValue?.[optionLabel] || "" }}
                         </div>
                     </div>
@@ -136,7 +135,10 @@ const clearFilter = () => {
                 </div>
 
                 <Teleport to="body">
-                    <Transition @enter="onMenuEnter">
+                    <Transition
+                        @enter="onMenuEnter"
+                        @after-leave="onAfterMenuLeave"
+                    >
                         <div
                             v-show="isOpen"
                             ref="menu"
