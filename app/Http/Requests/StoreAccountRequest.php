@@ -19,7 +19,7 @@ class StoreAccountRequest extends FormRequest
         return [
             'title' => ['string', 'required'],
             'currency' => ['required', Rule::exists(Currency::class, 'code')],
-            'balance' => ['required', 'numeric'],
+            'balance' => ['nullable', 'numeric'],
             'color' => ['required', 'hex_color'],
         ];
     }

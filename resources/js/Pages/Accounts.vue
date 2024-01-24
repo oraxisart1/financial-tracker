@@ -1,9 +1,10 @@
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import { Head, useForm } from "@inertiajs/vue3";
 import PageTitle from "@/Components/UI/PageTitle.vue";
 import PrimaryButton from "@/Components/UI/Buttons/PrimaryButton.vue";
 import { ref } from "vue";
 import AccountsTable from "@/Components/Feature/Account/AccountsTable.vue";
+import AddAccountForm from "@/Components/Feature/Account/AddAccountForm.vue";
 
 const tabs = [
     { label: "Accounts", name: "accounts" },
@@ -20,6 +21,10 @@ const selectTab = (tabName) => {
     }
 
     activeTab.value = tabName;
+};
+
+const onAccountStored = () => {
+    activeTab.value = "accounts";
 };
 </script>
 
@@ -50,6 +55,13 @@ const selectTab = (tabName) => {
             <AccountsTable
                 v-show="activeTab === 'accounts'"
                 :accounts="$page.props.accounts"
+            />
+
+            <AddAccountForm
+                v-if="activeTab === 'add_account'"
+                :currencies="$page.props.currencies"
+                @cancel="selectTab('accounts')"
+                @store="onAccountStored"
             />
         </div>
     </div>

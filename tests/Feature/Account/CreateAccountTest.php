@@ -84,7 +84,7 @@ class CreateAccountTest extends TestCase
         $this->assertCount(0, Account::all());
     }
 
-    public function test_balance_is_required(): void
+    public function test_balance_is_optional(): void
     {
         $user = User::factory()->create();
 
@@ -93,8 +93,11 @@ class CreateAccountTest extends TestCase
             $this->validParams(['balance' => ''])
         );
 
-        $response->assertSessionHasErrors('balance');
-        $this->assertCount(0, Account::all());
+        $response->assertSessionHasNoErrors();
+        $this->assertCount(1, Account::all());
+        tap(Account::first(), function (Account $account) {
+            $this->assertEqualsWithDelta(0, $account->balance, 0.0001);
+        });
     }
 
     public function test_balance_must_be_numeric(): void
