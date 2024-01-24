@@ -36,6 +36,9 @@ export default {
             gap: {
                 7.5: "1.875rem",
             },
+            boxShadow: {
+                none: "none !important",
+            },
         },
     },
 
