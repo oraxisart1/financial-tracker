@@ -14,10 +14,10 @@ const onInput = (e) => {
 <template>
     <div class="tw-flex tw-flex-col tw-gap-1">
         <input
-            :class="`tw-border-0 tw-bg-pastel tw-rounded-md tw-w-full tw-py-4 tw-px-4 tw-shadow-sm tw-min-h-[56px] tw-text-md ${
+            :class="`tw-bg-pastel tw-rounded-md tw-w-full tw-py-4 tw-px-4 tw-shadow-sm tw-min-h-[56px] tw-text-md ${
                 error
                     ? '!tw-border-2 !tw-border-red-600 tw-text-red-600 focus:tw-ring-red-500'
-                    : 'focus:tw-ring-indigo-500 focus:tw-ring-1'
+                    : 'focus:tw-ring-indigo-500 focus:tw-ring-1 tw-border tw-border-light'
             }`"
             :placeholder="placeholder"
             :value="modelValue"

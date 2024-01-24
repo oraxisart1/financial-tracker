@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 
-defineProps({
+const props = defineProps({
     modelValue: { type: [Object, String] },
     label: { type: String },
     error: { type: String },
@@ -15,16 +15,32 @@ defineProps({
 const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
+const filterValue = ref("");
 const bodyHandler = ref(null);
+const container = ref(null);
+const menu = ref(null);
+const root = ref(null);
+const input = ref(null);
 
-const onInput = (e) => {
-    emit("update:modelValue", e.target.value);
-};
+const filteredOptions = computed(() => {
+    if (!filterValue.value) {
+        return props.options;
+    }
+
+    const value = String(filterValue.value).trim().toLowerCase();
+    return props.options.filter(
+        (opt) =>
+            String(opt[props.optionLabel])
+                .trim()
+                .toLowerCase()
+                .indexOf(value) !== -1,
+    );
+});
 
 const open = () => {
     isOpen.value = true;
     const handler = (e) => {
-        if (!e.target.closest("[data-select]")) {
+        if (!menu.value?.contains(e.target) && !root.value.contains(e.target)) {
             close();
         }
     };
@@ -43,27 +59,74 @@ const selectOption = (option) => {
     emit("update:modelValue", option);
     close();
 };
+
+const onMenuEnter = () => {
+    alignMenu();
+    focusInput();
+};
+
+const alignMenu = () => {
+    menu.value.style.minWidth = `${container.value.offsetWidth}px`;
+
+    const containerRect = container.value.getBoundingClientRect();
+    menu.value.style.top = `${containerRect.y + containerRect.height}px`;
+    menu.value.style.left = `${containerRect.x}px`;
+};
+
+const focusInput = () => {
+    input.value.focus();
+};
+
+const onContainerClick = (e) => {
+    if (e.target === input.value) {
+        return;
+    }
+
+    isOpen.value ? close() : open();
+};
+
+const clearFilter = () => {
+    filterValue.value = "";
+};
+
+const onAfterMenuLeave = () => {
+    nextTick(clearFilter);
+};
 </script>
 
 <template>
-    <div class="tw-flex tw-flex-col tw-gap-1">
+    <div ref="root" class="tw-flex tw-flex-col tw-gap-1">
         <div class="tw-flex tw-items-center tw-w-full">
             <div class="tw-flex-grow tw-w-full tw-relative" data-select>
                 <div
-                    :class="`tw-bg-pastel tw-p-4 tw-w-full tw-rounded-md tw-flex tw-items-center tw-cursor-pointer tw-min-h-[56px] ${
-                        error ? 'tw-border-2 tw-border-red-600' : ''
+                    ref="container"
+                    :class="`tw-bg-pastel tw-p-4 tw-w-full tw-rounded-md tw-flex tw-items-center tw-cursor-pointer tw-min-h-[58px] ${
+                        error
+                            ? 'tw-border-2 tw-border-red-600'
+                            : 'tw-border tw-border-light'
                     }`"
-                    @click="isOpen ? close() : open()"
+                    @click="onContainerClick"
                 >
-                    <div
-                        v-if="!modelValue?.[optionLabel] && placeholder"
-                        class="tw-w-full tw-text-center tw-text-stone-500 tw-text-md"
-                    >
-                        {{ placeholder }}
+                    <div v-show="!isOpen" class="tw-w-full">
+                        <div
+                            v-if="!modelValue?.[optionLabel] && placeholder"
+                            class="tw-w-full tw-text-center tw-text-stone-500 tw-text-md tw-select-none"
+                        >
+                            {{ placeholder }}
+                        </div>
+
+                        <div v-else class="tw-text-md tw-select-none">
+                            {{ modelValue?.[optionLabel] || "" }}
+                        </div>
                     </div>
-                    <span v-else class="tw-text-md">
-                        {{ modelValue?.[optionLabel] || "" }}
-                    </span>
+
+                    <input
+                        v-show="isOpen"
+                        ref="input"
+                        :value="filterValue"
+                        class="tw-bg-transparent !tw-border-none tw-border-b tw-p-0 tw-shadow-none tw-w-full tw-text-md"
+                        @input="filterValue = $event.target.value"
+                    />
 
                     <q-icon
                         :name="isOpen ? 'expand_less' : 'expand_more'"
@@ -71,34 +134,44 @@ const selectOption = (option) => {
                     ></q-icon>
                 </div>
 
-                <Transition>
-                    <div
-                        v-show="isOpen"
-                        class="tw-absolute tw-flex tw-flex-col tw-bg-gray-100 tw-w-full tw-rounded-md tw-mt-1 tw-overflow-auto tw-max-h-[400px]"
+                <Teleport to="body">
+                    <Transition
+                        @enter="onMenuEnter"
+                        @after-leave="onAfterMenuLeave"
                     >
-                        <template v-if="options.length">
-                            <div
-                                v-for="option in options"
-                                :key="option[optionValue]"
-                                :class="`tw-p-4 tw-cursor-pointer hover:tw-bg-pastel ${
-                                    modelValue?.[optionValue] ===
-                                    option[optionValue]
-                                        ? 'tw-bg-pastel'
-                                        : ''
-                                }`"
-                                @click="selectOption(option)"
-                            >
-                                {{ option[optionLabel] }}
-                            </div>
-                        </template>
+                        <div
+                            v-show="isOpen"
+                            ref="menu"
+                            class="tw-absolute tw-flex tw-flex-col tw-bg-gray-100 tw-rounded-md tw-mt-1 tw-overflow-auto tw-max-h-[400px] tw-top-0"
+                        >
+                            <template v-if="filteredOptions.length">
+                                <div
+                                    v-for="option in filteredOptions"
+                                    :key="option[optionValue]"
+                                    :class="`tw-p-4 tw-cursor-pointer hover:tw-bg-pastel ${
+                                        modelValue?.[optionValue] ===
+                                        option[optionValue]
+                                            ? 'tw-bg-pastel'
+                                            : ''
+                                    }`"
+                                    @click="selectOption(option)"
+                                >
+                                    {{ option[optionLabel] }}
+                                </div>
+                            </template>
 
-                        <template v-else>
-                            <div class="tw-p-6">
-                                {{ noOptionsLabel }}
-                            </div>
-                        </template>
-                    </div>
-                </Transition>
+                            <template v-else-if="filterValue">
+                                <div class="tw-p-6">Nothing was found</div>
+                            </template>
+
+                            <template v-else>
+                                <div class="tw-p-6">
+                                    {{ noOptionsLabel }}
+                                </div>
+                            </template>
+                        </div>
+                    </Transition>
+                </Teleport>
             </div>
         </div>
 

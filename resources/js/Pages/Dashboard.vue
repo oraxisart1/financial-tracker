@@ -77,7 +77,7 @@ watch(serializedFilter, (value, oldValue) => {
         v-model="filter.transactionType"
         active-class="tw-bg-navigation"
         class="tw-mb-4"
-        content-class="tw-flex tw-mt-4 tw-text-white tw-bg-navigation-inactive"
+        content-class="tw-flex tw-text-white tw-bg-navigation-inactive"
         indicator-color="transparent"
         no-caps
     >

@@ -46,4 +46,14 @@ class ShowAccountListTest extends TestCase
 
         $response->assertRedirectToRoute('login');
     }
+
+    public function test_accounts_page_receives_currency_list(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('accounts.index'));
+
+        $response->assertInertia(fn(AssertableInertia $page) => $page
+            ->has('currencies'));
+    }
 }
