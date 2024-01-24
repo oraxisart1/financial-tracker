@@ -156,10 +156,10 @@ const save = () => {
             <div class="tw-flex tw-flex-col tw-gap-1">
                 <div
                     v-if="categories.length"
-                    :class="`tw-grid tw-grid-cols-5 tw-gap-y-4 tw-flex-grow tw-w-full tw-border-2 tw-rounded-md tw-p-2 ${
+                    :class="`tw-grid tw-grid-cols-5 tw-gap-y-4 tw-flex-grow tw-w-full tw-border-2 tw-rounded-md tw-p-2 tw-bg-light-pastel ${
                         form.errors.category_id
                             ? 'tw-border-red-600'
-                            : 'tw-border-pastel'
+                            : 'tw-border-light'
                     }`"
                 >
                     <div
