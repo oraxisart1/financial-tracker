@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountsController;
+use App\Http\Controllers\AccountTransfersController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -50,6 +51,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/accounts/{account}', [AccountsController::class, 'update'])
         ->name('accounts.update')
         ->middleware('can:update,account');
+
+    Route::post('/account-transfers', [AccountTransfersController::class, 'store'])
+        ->name('account-transfers.store');
 });
 
 Route::middleware('auth')->group(function () {
