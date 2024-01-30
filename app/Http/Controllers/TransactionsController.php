@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TransactionType;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
+use App\Models\Account;
 use App\Models\Currency;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TransactionsController extends Controller
 {
@@ -15,11 +18,20 @@ class TransactionsController extends Controller
      */
     public function store(StoreTransactionRequest $request)
     {
-        Transaction::create([
-            ...$request->validated(),
-            'user_id' => Auth::user()->id,
-            'currency_id' => Currency::findByCode($request->get('currency'))->id,
-        ]);
+        DB::transaction(function () use ($request) {
+            Transaction::create([
+                ...$request->validated(),
+                'user_id' => Auth::user()->id,
+                'currency_id' => Currency::findByCode($request->get('currency'))->id,
+            ]);
+
+            $account = Account::find($request->get('account_id'));
+            $type = TransactionType::from($request->get('type'));
+            $amount = ($type === TransactionType::INCOME ? 1 : -1) * $request->get('amount');
+            $account->update([
+                'balance' => $account->balance + $amount,
+            ]);
+        });
 
         return redirect()->route('dashboard');
     }

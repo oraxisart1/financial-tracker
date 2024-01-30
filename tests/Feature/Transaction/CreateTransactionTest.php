@@ -18,7 +18,6 @@ class CreateTransactionTest extends TestCase
 
     public function test_user_can_create_transaction(): void
     {
-        $this->withoutExceptionHandling();
         $user = User::factory()->create();
         $category = Category::factory()->create();
         $account = Account::factory()->create();
@@ -46,6 +45,36 @@ class CreateTransactionTest extends TestCase
             $this->assertTrue($transaction->category->is($category));
             $this->assertTrue($transaction->account->is($account));
         });
+    }
+
+    public function test_transaction_actually_affects_accounts_balance()
+    {
+        $user = User::factory()->create();
+        $account = Account::factory()->create([
+            'user_id' => $user->id,
+            'balance' => 2000,
+        ]);
+        $this->assertEqualsWithDelta(2000, $account->balance, 0.0001);
+
+        $this->actingAs($user)->post(
+            '/transactions',
+            $this->validParams([
+                'amount' => 1000,
+                'type' => TransactionType::INCOME->value,
+                'account_id' => $account->id,
+            ])
+        );
+        $this->assertEqualsWithDelta(3000, $account->fresh()->balance, 0.0001);
+
+        $this->actingAs($user)->post(
+            '/transactions',
+            $this->validParams([
+                'amount' => 2000,
+                'type' => TransactionType::EXPENSE->value,
+                'account_id' => $account->id,
+            ])
+        );
+        $this->assertEqualsWithDelta(1000, $account->fresh()->balance, 0.0001);
     }
 
     public function test_guest_cannot_create_transaction()
@@ -122,7 +151,6 @@ class CreateTransactionTest extends TestCase
 
     public function test_description_is_optional(): void
     {
-        $this->withoutExceptionHandling();
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
