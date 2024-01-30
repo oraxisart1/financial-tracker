@@ -10,6 +10,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class UpdateTransactionTest extends TestCase
@@ -19,8 +20,8 @@ class UpdateTransactionTest extends TestCase
     public function test_user_can_update_their_own_transaction(): void
     {
         $user = User::factory()->create();
-        $category = Category::factory()->create();
-        $account = Account::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id]);
+        $account = Account::factory()->create(['user_id' => $user->id]);
         $transaction = Transaction::factory()->create([
             'user_id' => $user->id,
             'amount' => 1000,
@@ -32,8 +33,8 @@ class UpdateTransactionTest extends TestCase
             'account_id' => $account->id,
         ]);
 
-        $newCategory = Category::factory()->create();
-        $newAccount = Account::factory()->create();
+        $newCategory = Category::factory()->create(['user_id' => $user->id]);
+        $newAccount = Account::factory()->create(['user_id' => $user->id]);
         $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
             'amount' => '2000',
             'description' => 'New description',
@@ -91,6 +92,50 @@ class UpdateTransactionTest extends TestCase
             $this->assertTrue($transaction->category->is($category));
             $this->assertTrue($transaction->account->is($account));
         });
+    }
+
+    public function test_user_cannot_update_account_to_other_user_account()
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $oldAccount = Account::factory()->create(['user_id' => $user->id]);
+        $account = Account::factory()->create(['user_id' => $otherUser->id]);
+        $transaction = Transaction::factory()->create([
+            'user_id' => $user->id,
+            'account_id' => $oldAccount->id,
+        ]);
+
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams([
+                'account_id' => $account->id,
+            ])
+        );
+
+        $response->assertSessionHasErrors('account_id');
+        $this->assertTrue($transaction->fresh()->account->is($oldAccount));
+    }
+
+    public function test_user_cannot_update_category_to_other_user_category()
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $oldCategory = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create(['user_id' => $otherUser->id]);
+        $transaction = Transaction::factory()->create([
+            'user_id' => $user->id,
+            'category_id' => $oldCategory->id,
+        ]);
+
+        $response = $this->actingAs($user)->patch(
+            "/transactions/$transaction->id",
+            $this->validParams([
+                'category_id' => $category->id,
+            ])
+        );
+
+        $response->assertSessionHasErrors('category_id');
+        $this->assertTrue($transaction->fresh()->category->is($oldCategory));
     }
 
     public function test_guest_cannot_update_any_transaction(): void
@@ -362,13 +407,20 @@ class UpdateTransactionTest extends TestCase
 
     private function validParams(array $overrides = []): array
     {
+        $categoryAttributes = [];
+        $accountAttributes = [];
+        if (Auth::user()) {
+            $categoryAttributes['user_id'] = Auth::user()->id;
+            $accountAttributes['user_id'] = Auth::user()->id;
+        }
+
         return [
             'amount' => '2000',
             'description' => 'New description',
             'date' => '2024-11-11',
             'currency' => 'USD',
-            'category_id' => Category::factory()->create()->id,
-            'account_id' => Account::factory()->create()->id,
+            'category_id' => Category::factory()->create($categoryAttributes)->id,
+            'account_id' => Account::factory()->create($accountAttributes)->id,
             ...$overrides,
         ];
     }

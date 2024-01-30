@@ -10,6 +10,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class CreateTransactionTest extends TestCase
@@ -19,8 +20,8 @@ class CreateTransactionTest extends TestCase
     public function test_user_can_create_transaction(): void
     {
         $user = User::factory()->create();
-        $category = Category::factory()->create();
-        $account = Account::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id]);
+        $account = Account::factory()->create(['user_id' => $user->id]);
 
         $response = $this->actingAs($user)->from('/dashboard')->post('/transactions', [
             'date' => '2023-01-01',
@@ -77,6 +78,40 @@ class CreateTransactionTest extends TestCase
         $this->assertEqualsWithDelta(1000, $account->fresh()->balance, 0.0001);
     }
 
+    public function test_user_cannot_create_transaction_with_other_user_account()
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $account = Account::factory()->create(['user_id' => $otherUser->id]);
+
+        $response = $this->actingAs($user)->post(
+            '/transactions',
+            $this->validParams([
+                'account_id' => $account->id,
+            ])
+        );
+
+        $response->assertSessionHasErrors('account_id');
+        $this->assertCount(0, Transaction::all());
+    }
+
+    public function test_user_cannot_create_transaction_with_other_user_category()
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $otherUser->id]);
+
+        $response = $this->actingAs($user)->post(
+            '/transactions',
+            $this->validParams([
+                'category_id' => $category->id,
+            ])
+        );
+
+        $response->assertSessionHasErrors('category_id');
+        $this->assertCount(0, Transaction::all());
+    }
+
     public function test_guest_cannot_create_transaction()
     {
         $response = $this->from('/dashboard')->post('/transactions', $this->validParams());
@@ -90,7 +125,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['date' => ''])
+            $this->validParams(
+                ['date' => '']
+            )
         );
 
         $response->assertSessionHasErrors('date');
@@ -103,7 +140,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['date' => 'not-date'])
+            $this->validParams(
+                ['date' => 'not-date']
+            )
         );
 
         $response->assertSessionHasErrors('date');
@@ -116,7 +155,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['amount' => ''])
+            $this->validParams(
+                ['amount' => '']
+            )
         );
 
         $response->assertSessionHasErrors('amount');
@@ -129,7 +170,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['amount' => 'not-numeric'])
+            $this->validParams(
+                ['amount' => 'not-numeric']
+            )
         );
 
         $response->assertSessionHasErrors('amount');
@@ -142,7 +185,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['amount' => '0'])
+            $this->validParams(
+                ['amount' => '0']
+            )
         );
 
         $response->assertSessionHasErrors('amount');
@@ -155,7 +200,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['description' => ''])
+            $this->validParams(
+                ['description' => '']
+            )
         );
 
         $response->assertSessionHasNoErrors();
@@ -168,7 +215,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['type' => ''])
+            $this->validParams(
+                ['type' => '']
+            )
         );
 
         $response->assertSessionHasErrors('type');
@@ -181,7 +230,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['type' => 'not-valid-type'])
+            $this->validParams(
+                ['type' => 'not-valid-type']
+            )
         );
 
         $response->assertSessionHasErrors('type');
@@ -194,7 +245,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['currency' => ''])
+            $this->validParams(
+                ['currency' => '']
+            )
         );
 
         $response->assertSessionHasErrors('currency');
@@ -207,7 +260,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['currency' => 'NOT-EXISTING-CURRENCY'])
+            $this->validParams(
+                ['currency' => 'NOT-EXISTING-CURRENCY']
+            )
         );
 
         $response->assertSessionHasErrors('currency');
@@ -220,7 +275,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['category_id' => ''])
+            $this->validParams(
+                ['category_id' => '']
+            )
         );
 
         $response->assertSessionHasErrors('category_id');
@@ -233,7 +290,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['category_id' => '999'])
+            $this->validParams(
+                ['category_id' => '999']
+            )
         );
 
         $response->assertSessionHasErrors('category_id');
@@ -246,7 +305,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['account_id' => ''])
+            $this->validParams(
+                ['account_id' => '']
+            )
         );
 
         $response->assertSessionHasErrors('account_id');
@@ -259,7 +320,9 @@ class CreateTransactionTest extends TestCase
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
             '/transactions',
-            $this->validParams(['account_id' => '999'])
+            $this->validParams(
+                ['account_id' => '999']
+            )
         );
 
         $response->assertSessionHasErrors('account_id');
@@ -268,14 +331,21 @@ class CreateTransactionTest extends TestCase
 
     private function validParams(array $overrides = []): array
     {
+        $categoryAttributes = [];
+        $accountAttributes = [];
+        if (Auth::user()) {
+            $categoryAttributes['user_id'] = Auth::user()->id;
+            $accountAttributes['user_id'] = Auth::user()->id;
+        }
+
         return [
             'date' => '2023-01-01',
             'amount' => 1000,
             'description' => 'Test transaction',
             'type' => TransactionType::INCOME->value,
             'currency' => 'USD',
-            'category_id' => Category::factory()->create()->id,
-            'account_id' => Account::factory()->create()->id,
+            'category_id' => Category::factory()->create($categoryAttributes)->id,
+            'account_id' => Account::factory()->create($accountAttributes)->id,
             ...$overrides,
         ];
     }
