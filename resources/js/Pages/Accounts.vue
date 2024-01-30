@@ -6,6 +6,7 @@ import { ref } from "vue";
 import AccountsTable from "@/Components/Feature/Account/AccountsTable.vue";
 import AddAccountForm from "@/Components/Feature/Account/AddAccountForm.vue";
 import AddAccountTransferForm from "@/Components/Feature/Account/AddAccountTransferForm.vue";
+import AccountTransfersTable from "@/Components/Feature/Account/AccountTransfersTable.vue";
 
 const tabs = [
     { label: "Accounts", name: "accounts" },
@@ -14,7 +15,7 @@ const tabs = [
     { label: "History", name: "history" },
 ];
 
-const activeTab = ref("transfer");
+const activeTab = ref("accounts");
 
 const selectTab = (tabName) => {
     if (tabName === activeTab.value) {
@@ -22,10 +23,6 @@ const selectTab = (tabName) => {
     }
 
     activeTab.value = tabName;
-};
-
-const onAccountStored = () => {
-    activeTab.value = "accounts";
 };
 </script>
 
@@ -70,6 +67,12 @@ const onAccountStored = () => {
                 :accounts="$page.props.accounts"
                 @cancel="selectTab('accounts')"
                 @store="selectTab('history')"
+            />
+
+            <AccountTransfersTable
+                v-if="activeTab === 'history'"
+                :accounts="$page.props.accounts"
+                :transfers="$page.props.transfers"
             />
         </div>
     </div>

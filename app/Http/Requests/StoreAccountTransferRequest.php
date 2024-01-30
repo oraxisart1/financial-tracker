@@ -42,6 +42,7 @@ class StoreAccountTransferRequest extends FormRequest
                 }),
                 'numeric',
                 'gt:0',
+                'nullable',
             ],
             'date' => [
                 'required',
