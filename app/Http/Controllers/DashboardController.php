@@ -23,20 +23,24 @@ class DashboardController extends Controller
             return redirect()->route('dashboard', ['transaction_type' => TransactionType::EXPENSE->value]);
         }
 
-        $dateFrom = $request->get('date_from')
-            ? Carbon::parse($request->get('date_from'))
-            : Carbon::parse(date('Y-m-01'));
-
-        $dateTo = $request->get('date_to')
-            ? Carbon::parse($request->get('date_to'))
-            : Carbon::parse(date('Y-m-t'));
-
         $transactionsQuery = Auth::user()
             ->transactions()
             ->with(['category', 'account', 'currency'])
-            ->ofType($transactionsType)
-            ->where('date', '>=', $dateFrom)
-            ->where('date', '<=', $dateTo);
+            ->ofType($transactionsType);
+
+        if (!$request->get('all_time')) {
+            $dateFrom = $request->get('date_from')
+                ? Carbon::parse($request->get('date_from'))
+                : Carbon::parse(date('Y-m-01'));
+
+            $dateTo = $request->get('date_to')
+                ? Carbon::parse($request->get('date_to'))
+                : Carbon::parse(date('Y-m-t'));
+
+            $transactionsQuery
+                ->where('date', '>=', $dateFrom)
+                ->where('date', '<=', $dateTo);
+        }
 
         if ($request->get('category')) {
             $transactionsQuery->where('category_id', $request->get('category'));

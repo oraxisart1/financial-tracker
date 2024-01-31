@@ -21,6 +21,7 @@ const filter = ref({
         page.props.query.date_to ||
             format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
     ],
+    allTime: Boolean(page.props.query.all_time),
 });
 
 const serializedFilter = computed(() => JSON.stringify(filter.value));
@@ -53,11 +54,19 @@ watch(serializedFilter, (value, oldValue) => {
         }
     }
 
-    const params = {
+    let params = {
         transaction_type: filter.value.transactionType,
-        date_from: filter.value.date[0],
-        date_to: filter.value.date[1],
     };
+
+    if (filter.value.allTime) {
+        params.all_time = Number(filter.value.allTime);
+    } else {
+        params = {
+            ...params,
+            date_from: filter.value.date[0],
+            date_to: filter.value.date[1],
+        };
+    }
 
     if (filter.value.category) {
         params.category = filter.value.category;
@@ -105,7 +114,10 @@ watch(serializedFilter, (value, oldValue) => {
             <div
                 class="tw-bg-light-pastel tw-basis-1/2 tw-w-full tw-flex-grow tw-rounded-md tw-flex tw-flex-col tw-items-center tw-p-2 tw-gap-2.5"
             >
-                <DateRange v-model="filter.date" />
+                <DateRange
+                    v-model="filter.date"
+                    v-model:all-time="filter.allTime"
+                />
 
                 <div class="tw-text-2xl tw-font-medium">
                     <span>
