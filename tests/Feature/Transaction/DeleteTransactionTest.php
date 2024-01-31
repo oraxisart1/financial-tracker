@@ -18,9 +18,14 @@ class DeleteTransactionTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->actingAs($user)->delete("/transactions/$transaction->id");
+        $response = $this->actingAs($user)->delete(
+            route(
+                'transactions.destroy',
+                ['transaction' => $transaction]
+            )
+        );
 
-        $response->assertRedirect('/dashboard/');
+        $response->assertRedirectToRoute('dashboard');
         $this->assertEquals(0, Transaction::count());
     }
 
@@ -32,7 +37,12 @@ class DeleteTransactionTest extends TestCase
             'user_id' => $otherUser->id,
         ]);
 
-        $response = $this->actingAs($user)->delete("/transactions/$transaction->id");
+        $response = $this->actingAs($user)->delete(
+            route(
+                'transactions.destroy',
+                ['transaction' => $transaction]
+            )
+        );
 
         $response->assertStatus(404);
         $this->assertEquals(1, Transaction::count());
@@ -45,7 +55,12 @@ class DeleteTransactionTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->delete("/transactions/$transaction->id");
+        $response = $this->delete(
+            route(
+                'transactions.destroy',
+                ['transaction' => $transaction]
+            )
+        );
 
         $response->assertRedirectToRoute('login');
         $this->assertEquals(1, Transaction::count());

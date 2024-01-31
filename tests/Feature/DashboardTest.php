@@ -19,14 +19,19 @@ class DashboardTest extends TestCase
     public function test_user_can_see_dashboard_page(): void
     {
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->get('/dashboard?transaction_type=expense');
+        $response = $this->actingAs($user)->get(
+            route(
+                'dashboard',
+                ['transaction_type' => TransactionType::EXPENSE->value]
+            )
+        );
 
         $response->assertStatus(200);
     }
 
     public function test_guest_cannot_see_dashboard_page()
     {
-        $response = $this->get('/dashboard');
+        $response = $this->get(route('dashboard'));
 
         $response->assertRedirectToRoute('login');
     }
@@ -36,7 +41,15 @@ class DashboardTest extends TestCase
         $user = User::factory()->create();
         $user->transactions()->saveMany(Transaction::factory(3)->make(['type' => TransactionType::EXPENSE]));
 
-        $response = $this->actingAs($user)->get('/dashboard?transaction_type=expense');
+        $response = $this->actingAs($user)->get(
+            route(
+                'dashboard',
+                [
+                    'transaction_type' => TransactionType::EXPENSE->value,
+                    'all_time' => true,
+                ]
+            )
+        );
         $response->assertInertia(fn(AssertableInertia $page) => $page
             ->component('Dashboard')
             ->has('transactions', 3));
@@ -50,7 +63,15 @@ class DashboardTest extends TestCase
         $otherUser = User::factory()->create();
         $otherUser->transactions()->saveMany(Transaction::factory(3)->make(['type' => TransactionType::EXPENSE]));
 
-        $response = $this->actingAs($user)->get('/dashboard?transaction_type=expense');
+        $response = $this->actingAs($user)->get(
+            route(
+                'dashboard',
+                [
+                    'transaction_type' => TransactionType::EXPENSE->value,
+                    'all_time' => true,
+                ]
+            )
+        );
         $response->assertInertia(fn(AssertableInertia $page) => $page
             ->component('Dashboard')
             ->has('transactions', 3));
@@ -63,7 +84,13 @@ class DashboardTest extends TestCase
         $user->transactions()->saveMany(Transaction::factory(5)->make(['type' => TransactionType::EXPENSE->value]));
 
         $response = $this->actingAs($user)->get(
-            '/dashboard?' . http_build_query(['transaction_type' => TransactionType::INCOME->value])
+            route(
+                'dashboard',
+                [
+                    'transaction_type' => TransactionType::INCOME->value,
+                    'all_time' => true,
+                ]
+            )
         );
         $response->assertInertia(fn(AssertableInertia $page) => $page
             ->component('Dashboard')
@@ -96,7 +123,13 @@ class DashboardTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(
-            '/dashboard?' . http_build_query(['transaction_type' => TransactionType::INCOME->value])
+            route(
+                'dashboard',
+                [
+                    'transaction_type' => TransactionType::INCOME->value,
+                    'all_time' => true,
+                ]
+            )
         );
         $response->assertInertia(fn(AssertableInertia $page) => $page
             ->component('Dashboard')
@@ -129,13 +162,13 @@ class DashboardTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(
-            sprintf(
-                '%s?%s',
-                '/dashboard',
-                http_build_query([
+            route(
+                'dashboard',
+                [
                     'transaction_type' => TransactionType::INCOME->value,
+                    'all_time' => true,
                     'category' => $categoryA->id,
-                ])
+                ]
             )
         );
 
@@ -151,12 +184,12 @@ class DashboardTest extends TestCase
         $user->accounts()->saveMany(Account::factory(10)->make(['user_id' => $user->id]));
 
         $response = $this->actingAs($user)->get(
-            sprintf(
-                '%s?%s',
-                '/dashboard',
-                http_build_query([
+            route(
+                'dashboard',
+                [
                     'transaction_type' => TransactionType::INCOME->value,
-                ])
+                    'all_time' => true,
+                ]
             )
         );
 
@@ -183,14 +216,13 @@ class DashboardTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(
-            sprintf(
-                '%s?%s',
-                '/dashboard',
-                http_build_query([
+            route(
+                'dashboard',
+                [
                     'transaction_type' => TransactionType::INCOME->value,
                     'date_from' => '2024-01-01',
                     'date_to' => '2024-01-31',
-                ])
+                ]
             )
         );
 

@@ -16,11 +16,14 @@ class CreateCategoryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post('/categories', [
-            'title' => 'Test category',
-            'type' => CategoryType::INCOME->value,
-            'color' => '#FF0000',
-        ]);
+        $response = $this->actingAs($user)->from(route('dashboard'))->post(
+            route('categories.store'),
+            [
+                'title' => 'Test category',
+                'type' => CategoryType::INCOME->value,
+                'color' => '#FF0000',
+            ]
+        );
 
         $response->assertRedirectToRoute('dashboard');
         $response->assertSessionHasNoErrors();
@@ -34,7 +37,7 @@ class CreateCategoryTest extends TestCase
 
     public function test_guest_cannot_create_category(): void
     {
-        $response = $this->post('/categories', [
+        $response = $this->post(route('categories.store'), [
             'title' => 'Test category',
             'type' => CategoryType::INCOME->value,
             'color' => '#FF0000',
@@ -47,8 +50,8 @@ class CreateCategoryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/categories',
+        $response = $this->actingAs($user)->post(
+            route('categories.store'),
             $this->validParams([
                 'title' => '',
             ])
@@ -62,8 +65,8 @@ class CreateCategoryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/categories',
+        $response = $this->actingAs($user)->post(
+            route('categories.store'),
             $this->validParams([
                 'type' => '',
             ])
@@ -77,8 +80,8 @@ class CreateCategoryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/categories',
+        $response = $this->actingAs($user)->post(
+            route('categories.store'),
             $this->validParams([
                 'type' => 'not-valid-type',
             ])
@@ -92,8 +95,8 @@ class CreateCategoryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/categories',
+        $response = $this->actingAs($user)->post(
+            route('categories.store'),
             $this->validParams([
                 'color' => '',
             ])
@@ -107,8 +110,8 @@ class CreateCategoryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/categories',
+        $response = $this->actingAs($user)->post(
+            route('categories.store'),
             $this->validParams([
                 'color' => 'not-valid-color',
             ])

@@ -23,15 +23,18 @@ class CreateTransactionTest extends TestCase
         $category = Category::factory()->create(['user_id' => $user->id]);
         $account = Account::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->from('/dashboard')->post('/transactions', [
-            'date' => '2023-01-01',
-            'amount' => 1000,
-            'description' => 'Test transaction',
-            'type' => TransactionType::INCOME->value,
-            'currency' => 'USD',
-            'category_id' => $category->id,
-            'account_id' => $account->id,
-        ]);
+        $response = $this->actingAs($user)->from(route('dashboard'))->post(
+            route('transactions.store'),
+            [
+                'date' => '2023-01-01',
+                'amount' => 1000,
+                'description' => 'Test transaction',
+                'type' => TransactionType::INCOME->value,
+                'currency' => 'USD',
+                'category_id' => $category->id,
+                'account_id' => $account->id,
+            ]
+        );
 
         $response->assertSessionHasNoErrors();
         $this->assertCount(1, Transaction::all());
@@ -58,7 +61,7 @@ class CreateTransactionTest extends TestCase
         $this->assertEqualsWithDelta(2000, $account->balance, 0.0001);
 
         $this->actingAs($user)->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams([
                 'amount' => 1000,
                 'type' => TransactionType::INCOME->value,
@@ -68,7 +71,7 @@ class CreateTransactionTest extends TestCase
         $this->assertEqualsWithDelta(3000, $account->fresh()->balance, 0.0001);
 
         $this->actingAs($user)->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams([
                 'amount' => 2000,
                 'type' => TransactionType::EXPENSE->value,
@@ -85,7 +88,7 @@ class CreateTransactionTest extends TestCase
         $account = Account::factory()->create(['user_id' => $otherUser->id]);
 
         $response = $this->actingAs($user)->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams([
                 'account_id' => $account->id,
             ])
@@ -102,7 +105,7 @@ class CreateTransactionTest extends TestCase
         $category = Category::factory()->create(['user_id' => $otherUser->id]);
 
         $response = $this->actingAs($user)->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams([
                 'category_id' => $category->id,
             ])
@@ -114,7 +117,10 @@ class CreateTransactionTest extends TestCase
 
     public function test_guest_cannot_create_transaction()
     {
-        $response = $this->from('/dashboard')->post('/transactions', $this->validParams());
+        $response = $this->from('/dashboard')->post(
+            route('transactions.store'),
+            $this->validParams()
+        );
 
         $response->assertRedirectToRoute('login');
     }
@@ -124,7 +130,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['date' => '']
             )
@@ -139,7 +145,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['date' => 'not-date']
             )
@@ -154,7 +160,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['amount' => '']
             )
@@ -169,7 +175,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['amount' => 'not-numeric']
             )
@@ -184,7 +190,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['amount' => '0']
             )
@@ -199,7 +205,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['description' => '']
             )
@@ -214,7 +220,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['type' => '']
             )
@@ -229,7 +235,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['type' => 'not-valid-type']
             )
@@ -244,7 +250,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['currency' => '']
             )
@@ -259,7 +265,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['currency' => 'NOT-EXISTING-CURRENCY']
             )
@@ -274,7 +280,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['category_id' => '']
             )
@@ -289,7 +295,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['category_id' => '999']
             )
@@ -304,7 +310,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['account_id' => '']
             )
@@ -319,7 +325,7 @@ class CreateTransactionTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->from('/dashboard')->post(
-            '/transactions',
+            route('transactions.store'),
             $this->validParams(
                 ['account_id' => '999']
             )

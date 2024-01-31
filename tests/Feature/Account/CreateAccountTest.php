@@ -16,7 +16,7 @@ class CreateAccountTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post('/accounts', [
+        $response = $this->actingAs($user)->post(route('accounts.store'), [
             'title' => 'Test Account',
             'currency' => 'USD',
             'balance' => '1000',
@@ -35,7 +35,7 @@ class CreateAccountTest extends TestCase
 
     public function test_guest_cannot_create_account(): void
     {
-        $response = $this->post('/accounts', [
+        $response = $this->post(route('accounts.store'), [
             'title' => 'Test Account',
             'currency' => 'USD',
             'balance' => '1000',
@@ -50,7 +50,7 @@ class CreateAccountTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(
-            '/accounts',
+            route('accounts.store'),
             $this->validParams(['title' => ''])
         );
 
@@ -63,7 +63,7 @@ class CreateAccountTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(
-            '/accounts',
+            route('accounts.store'),
             $this->validParams(['currency' => ''])
         );
 
@@ -76,7 +76,7 @@ class CreateAccountTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(
-            '/accounts',
+            route('accounts.store'),
             $this->validParams(['currency' => 'not-existing-currency'])
         );
 
@@ -89,7 +89,7 @@ class CreateAccountTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(
-            '/accounts',
+            route('accounts.store'),
             $this->validParams(['balance' => ''])
         );
 
@@ -105,7 +105,7 @@ class CreateAccountTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(
-            '/accounts',
+            route('accounts.store'),
             $this->validParams(['balance' => 'not-numeric'])
         );
 
@@ -118,7 +118,7 @@ class CreateAccountTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(
-            '/accounts',
+            route('accounts.store'),
             $this->validParams(['color' => ''])
         );
 
@@ -131,7 +131,7 @@ class CreateAccountTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(
-            '/accounts',
+            route('accounts.store'),
             $this->validParams(['color' => 'not-valid-color'])
         );
 

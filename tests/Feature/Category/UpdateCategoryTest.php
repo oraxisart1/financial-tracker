@@ -19,11 +19,14 @@ class UpdateCategoryTest extends TestCase
             'color' => '#FF0000',
         ]);
 
-        $response = $this->actingAs($user)->from('/dashboard')->patch("/categories/$category->id", [
-            'title' => 'New Title',
-            'type' => CategoryType::INCOME->value,
-            'color' => '#0000FF',
-        ]);
+        $response = $this->actingAs($user)->from(route('dashboard'))->patch(
+            route('categories.update', ['category' => $category]),
+            [
+                'title' => 'New Title',
+                'type' => CategoryType::INCOME->value,
+                'color' => '#0000FF',
+            ]
+        );
 
         $response->assertRedirectToRoute('dashboard');
         $response->assertSessionHasNoErrors();
@@ -47,11 +50,14 @@ class UpdateCategoryTest extends TestCase
             'color' => '#FF0000',
         ]);
 
-        $response = $this->actingAs($user)->patch("/categories/$category->id", [
-            'title' => 'New Title',
-            'type' => CategoryType::INCOME->value,
-            'color' => '#0000FF',
-        ]);
+        $response = $this->actingAs($user)->patch(
+            route('categories.update', ['category' => $category]),
+            [
+                'title' => 'New Title',
+                'type' => CategoryType::INCOME->value,
+                'color' => '#0000FF',
+            ]
+        );
 
         $response->assertStatus(404);
         tap($category->fresh(), function (Category $category) {
@@ -69,11 +75,14 @@ class UpdateCategoryTest extends TestCase
             'color' => '#FF0000',
         ]);
 
-        $response = $this->patch("/categories/$category->id", [
-            'title' => 'New Title',
-            'type' => CategoryType::INCOME->value,
-            'color' => '#0000FF',
-        ]);
+        $response = $this->patch(
+            route('categories.update', ['category' => $category]),
+            [
+                'title' => 'New Title',
+                'type' => CategoryType::INCOME->value,
+                'color' => '#0000FF',
+            ]
+        );
 
         $response->assertRedirectToRoute('login');
         tap($category->fresh(), function (Category $category) {
@@ -88,7 +97,7 @@ class UpdateCategoryTest extends TestCase
         $category = Category::factory()->create(['title' => 'Old Title']);
 
         $response = $this->actingAs($category->user)->patch(
-            "/categories/$category->id",
+            route('categories.update', ['category' => $category]),
             $this->validParams([
                 'title' => '',
             ])
@@ -105,7 +114,7 @@ class UpdateCategoryTest extends TestCase
         $category = Category::factory()->create(['type' => CategoryType::EXPENSE]);
 
         $response = $this->actingAs($category->user)->patch(
-            "/categories/$category->id",
+            route('categories.update', ['category' => $category]),
             $this->validParams([
                 'type' => '',
             ])
@@ -122,7 +131,7 @@ class UpdateCategoryTest extends TestCase
         $category = Category::factory()->create(['type' => CategoryType::EXPENSE,]);
 
         $response = $this->actingAs($category->user)->patch(
-            "/categories/$category->id",
+            route('categories.update', ['category' => $category]),
             $this->validParams([
                 'type' => 'not-valid-type',
             ])
@@ -139,7 +148,7 @@ class UpdateCategoryTest extends TestCase
         $category = Category::factory()->create(['color' => '#FF0000']);
 
         $response = $this->actingAs($category->user)->patch(
-            "/categories/$category->id",
+            route('categories.update', ['category' => $category]),
             $this->validParams([
                 'color' => '',
             ])
@@ -156,7 +165,7 @@ class UpdateCategoryTest extends TestCase
         $category = Category::factory()->create(['color' => '#FF0000']);
 
         $response = $this->actingAs($category->user)->patch(
-            "/categories/$category->id",
+            route('categories.update', ['category' => $category]),
             $this->validParams([
                 'color' => 'not-valid-color',
             ])

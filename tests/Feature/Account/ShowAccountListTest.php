@@ -16,6 +16,7 @@ class ShowAccountListTest extends TestCase
     {
         $user = User::factory()->create();
         $user->accounts()->saveMany(Account::factory(3)->create());
+
         $response = $this->actingAs($user)->get(route('accounts.index'));
 
         $response->assertStatus(200);
@@ -30,6 +31,7 @@ class ShowAccountListTest extends TestCase
         $user->accounts()->saveMany(Account::factory(3)->create());
         $otherUser = User::factory()->create();
         $otherUser->accounts()->saveMany(Account::factory(3)->create());
+
         $response = $this->actingAs($user)->get(route('accounts.index'));
 
         $response->assertStatus(200);
@@ -42,6 +44,7 @@ class ShowAccountListTest extends TestCase
     {
         $user = User::factory()->create();
         $user->accounts()->saveMany(Account::factory(3)->create());
+
         $response = $this->get(route('accounts.index'));
 
         $response->assertRedirectToRoute('login');

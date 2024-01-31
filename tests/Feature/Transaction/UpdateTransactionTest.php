@@ -35,14 +35,17 @@ class UpdateTransactionTest extends TestCase
 
         $newCategory = Category::factory()->create(['user_id' => $user->id]);
         $newAccount = Account::factory()->create(['user_id' => $user->id]);
-        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
-            'amount' => '2000',
-            'description' => 'New description',
-            'date' => '2024-11-11',
-            'currency' => 'EUR',
-            'category_id' => $newCategory->id,
-            'account_id' => $newAccount->id,
-        ]);
+        $response = $this->actingAs($user)->patch(
+            route('transactions.update', ['transaction' => $transaction]),
+            [
+                'amount' => '2000',
+                'description' => 'New description',
+                'date' => '2024-11-11',
+                'currency' => 'EUR',
+                'category_id' => $newCategory->id,
+                'account_id' => $newAccount->id,
+            ]
+        );
 
         $response->assertSessionHasNoErrors();
         tap($transaction->fresh(), function (Transaction $transaction) use ($newCategory, $newAccount) {
@@ -74,14 +77,17 @@ class UpdateTransactionTest extends TestCase
 
         $newCategory = Category::factory()->create();
         $newAccount = Account::factory()->create();
-        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", [
-            'amount' => '2000',
-            'description' => 'New description',
-            'date' => '2024-11-11',
-            'currency' => 'EUR',
-            'category_id' => $newCategory->id,
-            'account_id' => $newAccount->id,
-        ]);
+        $response = $this->actingAs($user)->patch(
+            route('transactions.update', ['transaction' => $transaction]),
+            [
+                'amount' => '2000',
+                'description' => 'New description',
+                'date' => '2024-11-11',
+                'currency' => 'EUR',
+                'category_id' => $newCategory->id,
+                'account_id' => $newAccount->id,
+            ]
+        );
 
         $response->assertStatus(404);
         tap($transaction->fresh(), function (Transaction $transaction) use ($category, $account) {
@@ -106,7 +112,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams([
                 'account_id' => $account->id,
             ])
@@ -128,7 +134,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams([
                 'category_id' => $category->id,
             ])
@@ -156,14 +162,17 @@ class UpdateTransactionTest extends TestCase
 
         $newCategory = Category::factory()->create();
         $newAccount = Account::factory()->create();
-        $response = $this->patch("/transactions/$transaction->id", [
-            'amount' => '2000',
-            'description' => 'New description',
-            'date' => '2024-11-11',
-            'currency' => 'EUR',
-            'category_id' => $newCategory->id,
-            'account_id' => $newAccount->id,
-        ]);
+        $response = $this->patch(
+            route('transactions.update', ['transaction' => $transaction]),
+            [
+                'amount' => '2000',
+                'description' => 'New description',
+                'date' => '2024-11-11',
+                'currency' => 'EUR',
+                'category_id' => $newCategory->id,
+                'account_id' => $newAccount->id,
+            ]
+        );
 
         $response->assertRedirectToRoute('login');
         tap($transaction->fresh(), function (Transaction $transaction) use ($category, $account) {
@@ -184,7 +193,10 @@ class UpdateTransactionTest extends TestCase
             'date' => Carbon::parse('2023-11-11'),
         ]);
 
-        $response = $this->actingAs($user)->patch("/transactions/$transaction->id", $this->validParams(['date' => '']));
+        $response = $this->actingAs($user)->patch(
+            route('transactions.update', ['transaction' => $transaction]),
+            $this->validParams(['date' => ''])
+        );
 
         $response->assertSessionHasErrors('date');
         tap($transaction->fresh(), function (Transaction $transaction) {
@@ -201,7 +213,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['date' => 'not-date'])
         );
 
@@ -220,7 +232,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['amount' => ''])
         );
 
@@ -239,7 +251,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['amount' => 'not-numeric'])
         );
 
@@ -258,7 +270,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['amount' => '0'])
         );
 
@@ -277,7 +289,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['description' => ''])
         );
 
@@ -296,7 +308,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['currency' => ''])
         );
 
@@ -315,7 +327,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['currency' => 'NOT-EXISTING-CURRENCY'])
         );
 
@@ -335,7 +347,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['category_id' => ''])
         );
 
@@ -355,7 +367,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['category_id' => '999'])
         );
 
@@ -375,7 +387,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['account_id' => ''])
         );
 
@@ -395,7 +407,7 @@ class UpdateTransactionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(
-            "/transactions/$transaction->id",
+            route('transactions.update', ['transaction' => $transaction]),
             $this->validParams(['account_id' => '999'])
         );
 
