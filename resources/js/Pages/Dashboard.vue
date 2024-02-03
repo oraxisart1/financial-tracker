@@ -3,7 +3,7 @@ import { Head, router, usePage } from "@inertiajs/vue3";
 import { computed, ref, watch } from "vue";
 import TransactionsTable from "@/Components/Feature/Transaction/TransactionsTable.vue";
 import AddTransactionButton from "@/Components/Feature/Transaction/AddTransactionButton.vue";
-import AddTransactionForm from "@/Components/Feature/Transaction/AddTransactionForm.vue";
+import TransactionForm from "@/Components/Feature/Transaction/TransactionForm.vue";
 import { formatCurrency } from "../Helpers/number.js";
 import { format, lastDayOfMonth } from "date-fns";
 import DateRange from "@/Components/UI/Input/DateRange.vue";
@@ -12,7 +12,8 @@ import BudgetChart from "@/Components/Feature/Budget/BudgetChart.vue";
 
 const page = usePage();
 
-const showAddForm = ref(false);
+const transactionForm = ref(null);
+const showTransactionForm = ref(false);
 const filter = ref({
     transactionType: page.props.query.transaction_type,
     category: Number(page.props.query.category || ""),
@@ -34,12 +35,17 @@ const onCategorySelect = (categoryId) => {
     filter.value.category = categoryId;
 };
 
-const openAddForm = () => {
-    showAddForm.value = true;
+const openTransactionForm = () => {
+    showTransactionForm.value = true;
 };
 
-const closeAddForm = () => {
-    showAddForm.value = false;
+const closeTransactionForm = () => {
+    showTransactionForm.value = false;
+};
+
+const onTransactionEdit = (row) => {
+    transactionForm.value.setModel(row);
+    showTransactionForm.value = true;
 };
 
 watch(serializedFilter, (value, oldValue) => {
@@ -109,7 +115,7 @@ watch(serializedFilter, (value, oldValue) => {
         <div
             class="tw-flex-grow tw-flex-1 tw-flex tw-flex-col tw-justify-between tw-items-center tw-gap-8"
         >
-            <AddTransactionButton @click="openAddForm" />
+            <AddTransactionButton @click="openTransactionForm" />
 
             <div
                 class="tw-bg-light-pastel tw-basis-1/2 tw-w-full tw-flex-grow tw-rounded-md tw-flex tw-flex-col tw-items-center tw-p-2 tw-gap-2.5"
@@ -150,20 +156,22 @@ watch(serializedFilter, (value, oldValue) => {
 
         <div class="tw-flex-grow tw-flex-1">
             <TransactionsTable
-                v-show="!showAddForm"
+                v-show="!showTransactionForm"
                 :categories="page.props.categories"
                 :filter="filter"
                 :transactions="page.props.transactions"
                 @select-category="onCategorySelect"
+                @edit-click="onTransactionEdit"
             />
 
-            <AddTransactionForm
-                v-if="showAddForm"
+            <TransactionForm
+                v-show="showTransactionForm"
+                ref="transactionForm"
                 :accounts="page.props.accounts"
                 :categories="page.props.categories"
                 :transaction-type="filter.transactionType"
-                @cancel="closeAddForm"
-                @store="closeAddForm"
+                @cancel="closeTransactionForm"
+                @save="closeTransactionForm"
             />
         </div>
     </div>

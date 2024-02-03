@@ -49,7 +49,7 @@ watch(
 onMounted(() => {
     const handler = (e) => {
         if (e.code === "Escape") {
-            emit("cancel");
+            close();
         }
     };
 
@@ -57,10 +57,11 @@ onMounted(() => {
     escapeHandler.value = handler;
 });
 
-const emit = defineEmits(["cancel", "store"]);
+const emit = defineEmits(["cancel", "save"]);
 const quasar = useQuasar();
 
-const onCancelClick = () => {
+const close = () => {
+    form.reset();
     emit("cancel");
 };
 
@@ -75,21 +76,25 @@ const selectCategory = (categoryId) => {
 };
 
 const save = () => {
-    form.transform((data) => {
+    const transformed = form.transform((data) => {
         return {
             ...data,
             account_id: data.account?.id,
             currency: data.account?.currency?.code,
             type: props.transactionType,
         };
-    }).post(route("transactions.store"), {
+    });
+
+    const options = {
         onSuccess: () => {
             quasar.notify({
                 color: "positive",
-                message: "Transaction successfully created",
+                message: form.id
+                    ? "Transaction successfully updated"
+                    : "Transaction successfully created",
             });
 
-            emit("store");
+            emit("save");
         },
         onError(errors) {
             if (!Object.values(errors).length) {
@@ -99,8 +104,32 @@ const save = () => {
                 });
             }
         },
-    });
+    };
+
+    if (form.id) {
+        transformed.patch(
+            route("transactions.update", { transaction: form.id }),
+            options,
+        );
+    } else {
+        transformed.post(route("transactions.store"), options);
+    }
 };
+
+const setModel = (model) => {
+    form.amount = model.amount;
+    form.date = model.date;
+    form.description = model.description || "";
+    form.category_id = model.category.id;
+    form.id = model.id;
+
+    const account = props.accounts.find(
+        (acc) => Number(acc.id) === Number(model.account.id),
+    );
+    form.account = account || null;
+};
+
+defineExpose({ setModel });
 </script>
 
 <template>
@@ -110,7 +139,8 @@ const save = () => {
         <div
             class="tw-text-white tw-p-3 tw-font-medium tw-text-2xl tw-text-center tw-bg-teal tw-rounded-t-md"
         >
-            Create {{ transactionType === "expense" ? "Expense" : "Income" }}
+            {{ form.id ? "Update" : "Create" }}
+            {{ transactionType === "expense" ? "Expense" : "Income" }}
         </div>
 
         <form
@@ -228,7 +258,7 @@ const save = () => {
                 <button
                     class="tw-bg-navigation-inactive tw-text-white tw-py-3 tw-w-[200px] tw-text-2xl tw-font-medium tw-rounded-lg tw-shadow-lg hover:tw-bg-navigation focus:tw-bg-navigation"
                     type="reset"
-                    @click="onCancelClick"
+                    @click="close"
                 >
                     Cancel
                 </button>

@@ -33,7 +33,7 @@ class TransactionsController extends Controller
             ]);
         });
 
-        return redirect()->route('dashboard');
+        return redirect()->back();
     }
 
     /**
@@ -46,13 +46,13 @@ class TransactionsController extends Controller
             'currency_id' => Currency::findByCode($request->get('currency'))->id,
         ]);
 
-        return redirect()->route('dashboard');
+        return redirect()->back();
     }
 
     public function destroy(Transaction $transaction)
     {
         $transaction->delete();
 
-        return redirect()->route('dashboard');
+        return redirect()->back();
     }
 }

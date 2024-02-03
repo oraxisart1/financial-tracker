@@ -18,7 +18,7 @@ class DeleteTransactionTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->actingAs($user)->delete(
+        $response = $this->actingAs($user)->from(route('dashboard'))->delete(
             route(
                 'transactions.destroy',
                 ['transaction' => $transaction]
