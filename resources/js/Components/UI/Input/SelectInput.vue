@@ -140,8 +140,9 @@ const onAfterMenuLeave = () => {
                         @after-leave="onAfterMenuLeave"
                     >
                         <div
-                            v-show="isOpen"
+                            v-if="isOpen"
                             ref="menu"
+                            v-key-press="{ escape: close }"
                             class="tw-absolute tw-flex tw-flex-col tw-bg-gray-100 tw-rounded-md tw-mt-1 tw-overflow-auto tw-max-h-[400px] tw-top-0"
                         >
                             <template v-if="filteredOptions.length">

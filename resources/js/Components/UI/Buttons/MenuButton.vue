@@ -18,7 +18,6 @@ const menu = ref(null);
 const container = ref(null);
 const clickOutsideListener = ref(null);
 const scrollHandler = ref(null);
-const escHandler = ref(null);
 
 const open = () => {
     isOpen.value = true;
@@ -36,13 +35,11 @@ const onMenuEnter = () => {
     alignMenu();
     addClickOutsideListener();
     addScrollHandler();
-    addEscHandler();
 };
 
 const onMenuLeave = () => {
     removeClickOutsideListener();
     removeScrollHandler();
-    removeEscHandler();
 };
 
 const alignMenu = () => {
@@ -97,23 +94,6 @@ const removeScrollHandler = () => {
         document.removeEventListener("wheel", scrollHandler.value);
     }
 };
-
-const addEscHandler = () => {
-    escHandler.value = (e) => {
-        if (String(e.code).toLowerCase() === "escape") {
-            close();
-            e.stopPropagation();
-        }
-    };
-
-    document.addEventListener("keydown", escHandler.value);
-};
-
-const removeEscHandler = () => {
-    if (escHandler.value) {
-        document.removeEventListener("keydown", escHandler.value);
-    }
-};
 </script>
 
 <template>
@@ -129,8 +109,9 @@ const removeEscHandler = () => {
         <Teleport to="body">
             <Transition @enter="onMenuEnter" @leave="onMenuLeave">
                 <div
-                    v-show="isOpen"
+                    v-if="isOpen"
                     ref="menu"
+                    v-key-press="{ escape: close }"
                     class="tw-absolute tw-flex tw-flex-col tw-bg-gray-100 tw-rounded-md tw-mt-4 tw-overflow-auto tw-max-h-[400px] tw-top-0 tw-min-w-[10rem] tw-select-none"
                 >
                     <div

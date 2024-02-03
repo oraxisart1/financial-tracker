@@ -48,33 +48,10 @@ const clear = () => {
     rejectPromise.value = null;
 };
 
-const addKeysHandler = () => {
-    keysHandler.value = (e) => {
-        let code = String(e.code).toLowerCase();
-        if (code === "escape") {
-            cancel();
-            e.stopPropagation();
-        } else if (code === "enter") {
-            confirm();
-            e.stopPropagation();
-        }
-    };
-
-    document.addEventListener("keydown", keysHandler.value);
-};
-
-const removeKeysHandler = () => {
-    if (keysHandler.value) {
-        document.removeEventListener("keydown", keysHandler.value);
-    }
-};
-
 const onDialogEnter = () => {
-    addKeysHandler();
     addClickOutsideListener();
 };
 const onDialogLeave = () => {
-    removeKeysHandler();
     removeClickOutsideListener();
 };
 
@@ -103,6 +80,7 @@ defineExpose({ open });
         <Transition @enter="onDialogEnter" @leave="onDialogLeave">
             <div
                 v-if="show"
+                v-key-press="{ escape: cancel, enter: confirm }"
                 class="tw-flex tw-justify-center tw-items-center tw-absolute tw-top-0 tw-right-0 tw-bottom-0 tw-left-0 tw-bg-opacity-40 tw-bg-stone-900"
             >
                 <div

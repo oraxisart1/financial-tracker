@@ -1,12 +1,13 @@
 <script setup>
-import { useForm, usePage } from "@inertiajs/vue3";
+import { usePage } from "@inertiajs/vue3";
 import { format } from "date-fns";
 import { useQuasar } from "quasar";
 import NumberInput from "@/Components/UI/Input/NumberInput.vue";
 import DateInput from "@/Components/UI/Input/DateInput.vue";
 import TextInput from "@/Components/UI/Input/TextInput.vue";
 import SelectInput from "@/Components/UI/Input/SelectInput.vue";
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { watch } from "vue";
+import useForm from "@/Hooks/useForm.js";
 
 const props = defineProps({
     transactionType: { type: String },
@@ -24,38 +25,12 @@ const form = useForm({
 
 const page = usePage();
 
-const escapeHandler = ref(null);
-
 watch(
     () => page.props.query.transaction_type,
     () => {
         form.category_id = "";
     },
 );
-
-watch(
-    () => form.data(),
-    (newValue, oldValue) => {
-        const changedField = Object.keys(newValue).find(
-            (key) => newValue[key] !== oldValue[key],
-        );
-
-        if (changedField in form.errors) {
-            form.clearErrors(changedField);
-        }
-    },
-);
-
-onMounted(() => {
-    const handler = (e) => {
-        if (e.code === "Escape") {
-            cancel();
-        }
-    };
-
-    document.addEventListener("keyup", handler);
-    escapeHandler.value = handler;
-});
 
 const emit = defineEmits(["cancel", "save"]);
 const quasar = useQuasar();
@@ -68,12 +43,6 @@ const cancel = () => {
 const clear = () => {
     form.reset();
 };
-
-onUnmounted(() => {
-    if (escapeHandler.value) {
-        document.removeEventListener("keyup", escapeHandler.value);
-    }
-});
 
 const selectCategory = (categoryId) => {
     form.category_id = categoryId;
@@ -138,6 +107,7 @@ defineExpose({ setModel, clear });
 
 <template>
     <div
+        v-key-press="{ escape: cancel }"
         class="tw-flex tw-flex-col tw-rounded-md tw-bg-light-pastel tw-max-h-full tw-min-h-full tw-overflow-y-auto"
     >
         <div

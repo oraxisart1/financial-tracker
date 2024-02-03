@@ -13,6 +13,7 @@ import "@quasar/extras/material-icons/material-icons.css";
 
 // Import Quasar css
 import "quasar/src/css/index.sass";
+import keyPress from "@/Directives/keyPress.js";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -29,6 +30,7 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue, Ziggy)
             .use(Quasar, { plugins: [Notify] })
+            .directive("key-press", keyPress)
             .mount(el);
     },
     progress: {
