@@ -29,6 +29,9 @@ watch(
     () => page.props.query.transaction_type,
     () => {
         form.category_id = "";
+        if (form.id) {
+            cancel();
+        }
     },
 );
 
@@ -42,6 +45,7 @@ const cancel = () => {
 
 const clear = () => {
     form.reset();
+    form.id = null;
 };
 
 const selectCategory = (categoryId) => {
@@ -113,7 +117,7 @@ defineExpose({ setModel, clear });
         <div
             class="tw-text-white tw-p-3 tw-font-medium tw-text-2xl tw-text-center tw-bg-teal tw-rounded-t-md"
         >
-            {{ form.id ? "Update" : "Create" }}
+            {{ form.id ? "Edit" : "Add" }}
             {{ transactionType === "expense" ? "Expense" : "Income" }}
         </div>
 
