@@ -28,21 +28,21 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $user->accounts()->saveMany(
-            Account::factory(10)->create([
+            Account::factory(20)->create([
                 'user_id' => $user->id,
                 'currency_id' => fn() => Currency::findByCode(fake()->currencyCode())->id,
             ])
         );
 
         $user->categories()->saveMany(
-            Category::factory(10)->create([
+            Category::factory(20)->create([
                 'user_id' => $user->id,
                 'type' => CategoryType::EXPENSE,
             ])
         );
 
         $user->categories()->saveMany(
-            Category::factory(10)->create([
+            Category::factory(20)->create([
                 'user_id' => $user->id,
                 'type' => CategoryType::INCOME,
             ])

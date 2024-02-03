@@ -49,7 +49,7 @@ watch(
 onMounted(() => {
     const handler = (e) => {
         if (e.code === "Escape") {
-            close();
+            cancel();
         }
     };
 
@@ -60,9 +60,13 @@ onMounted(() => {
 const emit = defineEmits(["cancel", "save"]);
 const quasar = useQuasar();
 
-const close = () => {
-    form.reset();
+const cancel = () => {
+    clear();
     emit("cancel");
+};
+
+const clear = () => {
+    form.reset();
 };
 
 onUnmounted(() => {
@@ -117,7 +121,7 @@ const save = () => {
 };
 
 const setModel = (model) => {
-    form.amount = model.amount;
+    form.amount = +Number(model.amount || 0).toFixed(2);
     form.date = model.date;
     form.description = model.description || "";
     form.category_id = model.category.id;
@@ -129,7 +133,7 @@ const setModel = (model) => {
     form.account = account || null;
 };
 
-defineExpose({ setModel });
+defineExpose({ setModel, clear });
 </script>
 
 <template>
@@ -186,7 +190,7 @@ defineExpose({ setModel });
             <div class="tw-flex tw-flex-col tw-gap-1">
                 <div
                     v-if="categories.length"
-                    :class="`tw-grid tw-grid-cols-5 tw-gap-y-4 tw-flex-grow tw-w-full tw-border-2 tw-rounded-md tw-p-2 tw-bg-light-pastel ${
+                    :class="`tw-grid tw-grid-cols-5 tw-gap-y-4 tw-flex-grow tw-w-full tw-border-2 tw-rounded-md tw-p-2 tw-bg-light-pastel tw-overflow-y-auto tw-max-h-48 ${
                         form.errors.category_id
                             ? 'tw-border-red-600'
                             : 'tw-border-light'
@@ -258,7 +262,7 @@ defineExpose({ setModel });
                 <button
                     class="tw-bg-navigation-inactive tw-text-white tw-py-3 tw-w-[200px] tw-text-2xl tw-font-medium tw-rounded-lg tw-shadow-lg hover:tw-bg-navigation focus:tw-bg-navigation"
                     type="reset"
-                    @click="close"
+                    @click="cancel"
                 >
                     Cancel
                 </button>

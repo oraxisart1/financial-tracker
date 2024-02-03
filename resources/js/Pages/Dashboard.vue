@@ -36,6 +36,7 @@ const onCategorySelect = (categoryId) => {
 };
 
 const openTransactionForm = () => {
+    transactionForm.value.clear();
     showTransactionForm.value = true;
 };
 
