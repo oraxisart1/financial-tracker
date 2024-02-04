@@ -50,7 +50,15 @@ class TransactionsController extends Controller
 
     public function destroy(Transaction $transaction)
     {
-        $transaction->delete();
+        $multiplier = $transaction->type === TransactionType::INCOME ? -1 : 1;
+
+        DB::transaction(function () use ($transaction, $multiplier) {
+            $transaction->delete();
+
+            $transaction->account->update([
+                'balance' => $transaction->account->balance + ($multiplier * $transaction->amount),
+            ]);
+        });
 
         return redirect()->back();
     }
