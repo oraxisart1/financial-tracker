@@ -29,20 +29,31 @@ class TransactionsController extends Controller
 
     public function update(UpdateTransactionRequest $request, Transaction $transaction)
     {
-        $amountDifference = $request->get('amount') - $transaction->amount;
-        $multiplier = $transaction->type === TransactionType::INCOME ? 1 : -1;
-        $balanceAddAmount = $multiplier * $amountDifference;
+        DB::transaction(function () use ($transaction, $request) {
+            $oldAccount = $transaction->account;
+            $amountDifference = $request->get('amount') - $transaction->amount;
+            $multiplier = $transaction->type === TransactionType::INCOME ? 1 : -1;
 
-        DB::transaction(function () use ($transaction, $request, $balanceAddAmount) {
             $transaction->update([
                 ...$request->validated(),
                 'currency_id' => Currency::findByCode($request->get('currency'))->id,
             ]);
 
-            $account = $transaction->fresh()->account;
-            $account->update([
-                'balance' => $account->balance + $balanceAddAmount,
-            ]);
+            $newAccount = $transaction->fresh()->account;
+            if ($newAccount->is($oldAccount)) {
+                $account = $transaction->fresh()->account;
+                $account->update([
+                    'balance' => $account->balance + ($multiplier * $amountDifference),
+                ]);
+            } else {
+                $oldAccount->update([
+                    'balance' => $oldAccount->balance + (-$multiplier * $request->get('amount')),
+                ]);
+
+                $newAccount->update([
+                    'balance' => $newAccount->balance + ($multiplier * $request->get('amount')),
+                ]);
+            }
         });
 
         return redirect()->back();
