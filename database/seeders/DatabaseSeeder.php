@@ -49,15 +49,19 @@ class DatabaseSeeder extends Seeder
         );
 
         foreach (Category::all() as $category) {
-            $category->transactions()->saveMany(
-                Transaction::factory(10)->create([
-                    'user_id' => $user->id,
-                    'category_id' => $category->id,
-                    'account_id' => $user->accounts()->inRandomOrder()->first()->id,
-                    'type' => $category->type,
-                    'currency_id' => Currency::findByCode(fake()->currencyCode())->id,
-                ])
-            );
+            for ($i = 0; $i < 9; $i++) {
+                $transaction = Transaction::factory()->make(
+                    [
+                        'user_id' => $user->id,
+                        'category_id' => $category->id,
+                        'type' => $category->type,
+                        'currency_id' => Currency::findByCode(fake()->currencyCode())->id,
+                    ]
+                );
+
+                $account = $user->accounts()->inRandomOrder()->first();
+                $account->addTransaction($transaction);
+            }
         }
     }
 }
