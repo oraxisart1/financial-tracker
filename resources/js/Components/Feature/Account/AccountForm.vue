@@ -21,14 +21,14 @@ const predefinedColors = [
     "#747B7C",
 ];
 
-defineProps({
+const props = defineProps({
     currencies: {
         type: Array,
         required: true,
     },
 });
 
-const emit = defineEmits(["store", "cancel"]);
+const emit = defineEmits(["save", "cancel"]);
 
 const form = useForm({
     title: "",
@@ -39,19 +39,23 @@ const form = useForm({
 const quasar = useQuasar();
 
 const save = () => {
-    form.transform((data) => {
+    const transformed = form.transform((data) => {
         return {
             ...data,
             currency: data.currency?.code,
         };
-    }).post(route("accounts.store"), {
+    });
+
+    const options = {
         onSuccess: () => {
             quasar.notify({
                 color: "positive",
-                message: "Account successfully created",
+                message: form.id
+                    ? "Account successfully updated"
+                    : "Account successfully created",
             });
 
-            emit("store");
+            emit("save");
         },
         onError(errors) {
             if (!Object.values(errors).length) {
@@ -61,16 +65,45 @@ const save = () => {
                 });
             }
         },
-    });
+    };
+
+    if (form.id) {
+        transformed.patch(
+            route("accounts.update", { account: form.id }),
+            options,
+        );
+    } else {
+        transformed.post(route("accounts.store"), options);
+    }
 };
 
 const cancel = () => {
+    clear();
     emit("cancel");
 };
+
+const clear = () => {
+    form.reset();
+    form.id = null;
+};
+
+const setModel = (model) => {
+    form.balance = +Number(model.balance || 0).toFixed(2);
+    form.title = model.title;
+    form.color = model.color;
+    form.id = model.id;
+
+    const currency = props.currencies.find(
+        (currency) => currency.code === model.currency.code,
+    );
+    form.currency = currency || null;
+};
+
+defineExpose({ clear, setModel });
 </script>
 
 <template>
-    <Form title="Add" @submit="save">
+    <Form :title="form.id ? 'Edit' : 'Add'" @submit="save">
         <FormRow label="Account name">
             <TextInput
                 v-model="form.title"
@@ -79,7 +112,7 @@ const cancel = () => {
             />
         </FormRow>
 
-        <FormRow label="Currency">
+        <FormRow v-if="!form.id" label="Currency">
             <SelectInput
                 v-model="form.currency"
                 :error="form.errors.currency"

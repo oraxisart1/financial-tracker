@@ -51,6 +51,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/accounts/{account}', [AccountsController::class, 'update'])
         ->name('accounts.update')
         ->middleware('can:update,account');
+    Route::delete('/accounts/{account}/{mode?}', [AccountsController::class, 'destroy'])
+        ->name('accounts.destroy')
+        ->middleware('can:destroy,account');
 
     Route::post('/account-transfers', [AccountTransfersController::class, 'store'])
         ->name('account-transfers.store');

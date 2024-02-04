@@ -4,7 +4,7 @@ import PageTitle from "@/Components/UI/PageTitle.vue";
 import PrimaryButton from "@/Components/UI/Buttons/PrimaryButton.vue";
 import { ref } from "vue";
 import AccountsTable from "@/Components/Feature/Account/AccountsTable.vue";
-import AddAccountForm from "@/Components/Feature/Account/AddAccountForm.vue";
+import AccountForm from "@/Components/Feature/Account/AccountForm.vue";
 import AddAccountTransferForm from "@/Components/Feature/Account/AddAccountTransferForm.vue";
 import AccountTransfersTable from "@/Components/Feature/Account/AccountTransfersTable.vue";
 
@@ -16,13 +16,32 @@ const tabs = [
 ];
 
 const activeTab = ref("accounts");
+const accountForm = ref(null);
+const showForm = ref(false);
 
 const selectTab = (tabName) => {
+    if (
+        tabName !== "add_account" ||
+        (tabName === "add_account" && activeTab.value !== tabName)
+    ) {
+        showForm.value = false;
+        accountForm.value.clear();
+    }
+
     if (tabName === activeTab.value) {
         return;
     }
 
     activeTab.value = tabName;
+};
+
+const onAccountEdit = (account) => {
+    accountForm.value.setModel(account);
+    showForm.value = true;
+};
+
+const closeForm = () => {
+    selectTab("accounts");
 };
 </script>
 
@@ -51,15 +70,17 @@ const selectTab = (tabName) => {
 
         <div class="tw-flex-grow tw-basis-1/2">
             <AccountsTable
-                v-show="activeTab === 'accounts'"
+                v-show="activeTab === 'accounts' && !showForm"
                 :accounts="$page.props.accounts"
+                @edit-click="onAccountEdit"
             />
 
-            <AddAccountForm
-                v-if="activeTab === 'add_account'"
+            <AccountForm
+                v-show="activeTab === 'add_account' || showForm"
+                ref="accountForm"
                 :currencies="$page.props.currencies"
-                @cancel="selectTab('accounts')"
-                @store="selectTab('accounts')"
+                @cancel="closeForm"
+                @save="closeForm"
             />
 
             <AddAccountTransferForm

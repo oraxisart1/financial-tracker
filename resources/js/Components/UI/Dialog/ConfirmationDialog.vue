@@ -1,16 +1,38 @@
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import Dialog from "@/Components/UI/Dialog/Dialog.vue";
+
+const props = defineProps({
+    escDismiss: {
+        type: Boolean,
+        default: true,
+    },
+    submitOnEnterPress: {
+        type: Boolean,
+        default: true,
+    },
+    buttons: {
+        type: Array,
+        default: () => [],
+    },
+});
 
 const show = ref(false);
+const options = ref("");
 const title = ref("");
 const message = ref("");
 const okButton = ref("");
 const cancelButton = ref("");
 const resolvePromise = ref(null);
-const rejectPromise = ref(null);
-const keysHandler = ref(null);
-const clickOutsideListener = ref(null);
-const dialog = ref(null);
+
+const buttons = computed(() => {
+    return props.buttons.length
+        ? props.buttons
+        : [
+              { type: "confirm", label: okButton.value, value: true },
+              { type: "cancel", label: cancelButton.value, value: false },
+          ];
+});
 
 const open = (options = {}) => {
     options = {
@@ -27,103 +49,59 @@ const open = (options = {}) => {
     cancelButton.value = options.cancelButton;
     show.value = true;
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         resolvePromise.value = resolve;
-        rejectPromise.value = reject;
     });
 };
 
 const confirm = () => {
     show.value = false;
     resolvePromise.value(true);
-};
-
-const cancel = () => {
-    show.value = false;
-    resolvePromise.value(false);
+    clear();
 };
 
 const clear = () => {
     resolvePromise.value = null;
-    rejectPromise.value = null;
 };
 
-const onDialogEnter = () => {
-    addClickOutsideListener();
-};
-const onDialogLeave = () => {
-    removeClickOutsideListener();
-};
-
-const addClickOutsideListener = () => {
-    clickOutsideListener.value = (e) => {
-        if (!dialog.value?.contains(e.target)) {
-            cancel();
-        }
-    };
-
-    document.addEventListener("click", clickOutsideListener.value, {
-        capture: true,
-    });
+const handleButtonClick = (button) => {
+    show.value = false;
+    resolvePromise.value(button.value);
+    clear();
 };
 
-const removeClickOutsideListener = () => {
-    if (clickOutsideListener.value) {
-        document.removeEventListener("click", clickOutsideListener.value);
-    }
-};
 defineExpose({ open });
 </script>
 
 <template>
-    <Teleport to="body">
-        <Transition @enter="onDialogEnter" @leave="onDialogLeave">
-            <div
-                v-if="show"
-                v-key-press="{ escape: cancel, enter: confirm }"
-                class="tw-flex tw-justify-center tw-items-center tw-absolute tw-top-0 tw-right-0 tw-bottom-0 tw-left-0 tw-bg-opacity-40 tw-bg-stone-900"
-            >
-                <div
-                    ref="dialog"
-                    class="tw-flex tw-flex-col tw-gap-8 tw-bg-light tw-p-8 tw-rounded-xl tw-shadow-lg tw-absolute tw-top-1/4"
-                >
-                    <div class="tw-text-xl tw-font-semibold">
-                        {{ title }}
-                    </div>
-
-                    <div class="tw-text-md">
-                        {{ message }}
-                    </div>
-
-                    <div class="tw-flex tw-gap-4">
-                        <button
-                            class="tw-px-8 tw-py-3 tw-bg-red-600 tw-text-light tw-rounded-md tw-shadow-md hover:tw-bg-red-700 focus:tw-bg-red-700"
-                            @click="confirm"
-                        >
-                            {{ okButton }}
-                        </button>
-
-                        <button
-                            class="tw-px-8 tw-py-3 tw-bg-light tw-rounded-md tw-border tw-border-stone-500 hover:tw-bg-gray-300 focus:tw-bg-gray-300"
-                            @click="cancel"
-                        >
-                            {{ cancelButton }}
-                        </button>
-                    </div>
-                </div>
+    <Dialog v-model="show" :esc-dismiss="escDismiss">
+        <div
+            v-key-press="{ enter: submitOnEnterPress ? confirm : () => {} }"
+            class="tw-flex tw-flex-col tw-gap-8 tw-bg-light tw-rounded-xl tw-p-8"
+        >
+            <div class="tw-text-xl tw-font-semibold">
+                {{ title }}
             </div>
-        </Transition>
-    </Teleport>
+
+            <div class="tw-text-md tw-max-w-xl">
+                {{ message }}
+            </div>
+
+            <div class="tw-flex tw-gap-4">
+                <button
+                    v-for="button in buttons"
+                    :class="`tw-px-8 tw-py-3 tw-rounded-md ${
+                        button.type === 'confirm'
+                            ? 'tw-bg-red-600 hover:tw-bg-red-700 tw-text-light focus:tw-bg-red-700 tw-shadow-md '
+                            : 'tw-border-stone-500 hover:tw-bg-gray-300 focus:tw-bg-gray-300 tw-border tw-bg-light'
+                    }`"
+                    @click="handleButtonClick(button)"
+                >
+                    {{ button.label }}
+                </button>
+            </div>
+        </div>
+    </Dialog>
 </template>
 
-<style scoped>
-.v-enter-active,
-.v-leave-active {
-    transition: opacity 0.3s;
-}
-
-.v-enter,
-.v-leave-to {
-    opacity: 0;
-}
-</style>
+<style scoped></style>

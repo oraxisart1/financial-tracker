@@ -45,7 +45,16 @@ const onMenuLeave = () => {
 const alignMenu = () => {
     const containerRect = container.value.getBoundingClientRect();
     menu.value.style.top = `${containerRect.y - containerRect.height * 2}px`;
-    menu.value.style.left = `${containerRect.x + containerRect.width}px`;
+
+    let left = containerRect.x + containerRect.width;
+    const bodyWidth = document.body.getBoundingClientRect().width;
+
+    let menuRect = menu.value.getBoundingClientRect();
+    if (left + menuRect.width > bodyWidth) {
+        left = containerRect.x - menuRect.width;
+    }
+
+    menu.value.style.left = `${left}px`;
 };
 
 const addClickOutsideListener = () => {

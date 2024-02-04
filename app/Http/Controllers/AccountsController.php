@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\AccountDeleted;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Http\Resources\AccountTransferResource;
 use App\Http\Resources\CurrencyResource;
 use App\Models\Account;
 use App\Models\Currency;
+use App\Services\AccountService;
 use Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +17,10 @@ use Inertia\Inertia;
 
 class AccountsController extends Controller
 {
+    public function __construct(private readonly AccountService $accountService)
+    {
+    }
+
     public function store(StoreAccountRequest $request)
     {
         Account::create([
@@ -63,6 +69,13 @@ class AccountsController extends Controller
             ...$request->validated(),
             'currency_id' => Currency::findByCode($request->get('currency'))->id,
         ]);
+
+        return redirect()->back();
+    }
+
+    public function destroy(Account $account, string $mode = AccountService::DELETE_CASCADE_MODE)
+    {
+        $this->accountService->delete($account, $mode);
 
         return redirect()->back();
     }

@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -34,6 +36,16 @@ class Account extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function transfersFrom(): HasMany
+    {
+        return $this->hasMany(AccountTransfer::class, 'account_from_id');
+    }
+
+    public function transfersTo(): HasMany
+    {
+        return $this->hasMany(AccountTransfer::class, 'account_to_id');
     }
 
     public function addTransaction(Transaction $transaction)
