@@ -72,6 +72,7 @@ const save = () => {
             });
 
             emit("save");
+            clear();
         },
         onError(errors) {
             if (!Object.values(errors).length) {
