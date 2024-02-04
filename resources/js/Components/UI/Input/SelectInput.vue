@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref } from "vue";
 
 const props = defineProps({
     modelValue: { type: [Object, String] },
@@ -16,7 +16,7 @@ const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
 const filterValue = ref("");
-const bodyHandler = ref(null);
+const clickOutsideHandler = ref(null);
 const container = ref(null);
 const menu = ref(null);
 const root = ref(null);
@@ -39,20 +39,10 @@ const filteredOptions = computed(() => {
 
 const open = () => {
     isOpen.value = true;
-    const handler = (e) => {
-        if (!menu.value?.contains(e.target) && !root.value.contains(e.target)) {
-            close();
-        }
-    };
-    document.addEventListener("click", handler);
-    bodyHandler.value = handler;
 };
 
 const close = () => {
     isOpen.value = false;
-    if (bodyHandler.value) {
-        document.removeEventListener("click", bodyHandler.value);
-    }
 };
 
 const selectOption = (option) => {
@@ -63,6 +53,27 @@ const selectOption = (option) => {
 const onMenuEnter = () => {
     alignMenu();
     focusInput();
+    addClickOutsideHandler();
+};
+
+const onMenuLeave = () => {
+    console.log("test");
+    removeClickOutsideHandler();
+};
+
+const addClickOutsideHandler = () => {
+    clickOutsideHandler.value = (e) => {
+        if (!menu.value?.contains(e.target) && !root.value.contains(e.target)) {
+            close();
+        }
+    };
+    document.addEventListener("click", clickOutsideHandler.value);
+};
+
+const removeClickOutsideHandler = () => {
+    if (clickOutsideHandler.value) {
+        document.removeEventListener("click", clickOutsideHandler.value);
+    }
 };
 
 const alignMenu = () => {
@@ -92,6 +103,10 @@ const clearFilter = () => {
 const onAfterMenuLeave = () => {
     nextTick(clearFilter);
 };
+
+onBeforeUnmount(() => {
+    removeClickOutsideHandler();
+});
 </script>
 
 <template>
@@ -137,6 +152,7 @@ const onAfterMenuLeave = () => {
                 <Teleport to="body">
                     <Transition
                         @enter="onMenuEnter"
+                        @leave="onMenuLeave"
                         @after-leave="onAfterMenuLeave"
                     >
                         <div
