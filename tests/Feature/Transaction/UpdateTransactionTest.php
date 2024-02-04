@@ -58,6 +58,34 @@ class UpdateTransactionTest extends TestCase
         });
     }
 
+    public function test_updating_amount_affects_account_balance()
+    {
+        $user = User::factory()->create();
+        $account = $user->accounts()->save(
+            Account::factory()->create([
+                'balance' => 0,
+            ])
+        );
+        $transaction = Transaction::factory()->make([
+            'amount' => 1000,
+            'type' => TransactionType::INCOME,
+            'user_id' => $user->id,
+        ]);
+        $account->addTransaction($transaction);
+
+        $this->assertEqualsWithDelta(1000, $account->balance, 0);
+
+        $this->actingAs($user)->patch(
+            route('transactions.update', ['transaction' => $transaction]),
+            $this->validParams([
+                'amount' => '2000',
+                'account_id' => $account->id,
+            ])
+        );
+
+        $this->assertEqualsWithDelta(2000, $account->fresh()->balance, 0);
+    }
+
     public function test_user_cannot_update_other_transaction(): void
     {
         $user = User::factory()->create();

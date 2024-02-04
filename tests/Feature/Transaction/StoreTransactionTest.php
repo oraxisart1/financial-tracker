@@ -13,7 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
-class CreateTransactionTest extends TestCase
+class StoreTransactionTest extends TestCase
 {
     use RefreshDatabase;
 
