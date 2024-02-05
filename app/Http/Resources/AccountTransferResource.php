@@ -19,7 +19,7 @@ class AccountTransferResource extends JsonResource
             'account_from' => $this->accountFrom,
             'account_to' => $this->accountTo,
             'amount' => $this->amount,
-            'converted_amount' => $this->converted_amount ?? $this->amount,
+            'converted_amount' => $this->converted_amount,
             'date' => $this->date,
         ];
     }
