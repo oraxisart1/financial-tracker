@@ -57,6 +57,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/account-transfers', [AccountTransfersController::class, 'store'])
         ->name('account-transfers.store');
+
+    Route::delete('/account-transfers/{accountTransfer}', [AccountTransfersController::class, 'destroy'])
+        ->name('account-transfers.destroy')
+        ->middleware('can:destroy,accountTransfer');
 });
 
 Route::middleware('auth')->group(function () {

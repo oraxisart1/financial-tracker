@@ -33,4 +33,12 @@ class AccountTransfersController extends Controller
 
         return redirect()->back();
     }
+
+
+    public function destroy(AccountTransfer $accountTransfer)
+    {
+        $this->accountTransferService->delete($accountTransfer);
+
+        return redirect()->back();
+    }
 }

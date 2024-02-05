@@ -44,4 +44,28 @@ class AccountTransferServiceTest extends TestCase
         $this->assertEqualsWithDelta(1000, $accountFrom->balance, 0);
         $this->assertEqualsWithDelta(1200, $accountTo->balance, 0);
     }
+
+    public function test_deletes_account_transfer()
+    {
+        $transferService = new AccountTransferService();
+
+        $accountFrom = Account::factory()->create([
+            'balance' => 2000,
+        ]);
+        $accountTo = Account::factory()->create([
+            'balance' => 0,
+        ]);
+        $transfer = AccountTransfer::factory()->create([
+            'amount' => 1000,
+            'converted_amount' => 1200,
+        ]);
+        $transferService->transferBetweenAccounts($accountFrom, $accountTo, $transfer);
+        $this->assertEqualsWithDelta(1000, $accountFrom->fresh()->balance, 0);
+        $this->assertEqualsWithDelta(1200, $accountTo->fresh()->balance, 0);
+
+        $transferService->delete($transfer);
+
+        $this->assertEqualsWithDelta(2000, $accountFrom->fresh()->balance, 0);
+        $this->assertEqualsWithDelta(0, $accountTo->fresh()->balance, 0);
+    }
 }

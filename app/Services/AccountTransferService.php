@@ -25,4 +25,19 @@ class AccountTransferService
             ]);
         });
     }
+
+    public function delete(AccountTransfer $transfer)
+    {
+        DB::transaction(function () use ($transfer) {
+            $transfer->delete();
+
+            $transfer->accountFrom()->update([
+                'balance' => $transfer->accountFrom->balance + $transfer->amount,
+            ]);
+
+            $transfer->accountTo()->update([
+                'balance' => $transfer->accountTo->balance - $transfer->converted_amount,
+            ]);
+        });
+    }
 }
