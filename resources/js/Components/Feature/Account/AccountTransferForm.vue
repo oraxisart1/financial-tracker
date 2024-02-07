@@ -118,7 +118,11 @@ defineExpose({ setModel, clear });
 </script>
 
 <template>
-    <Form title="Transfer between accounts" @submit="save">
+    <Form
+        v-key-press="{ escape: () => emit('cancel') }"
+        title="Transfer between accounts"
+        @submit="save"
+    >
         <FormRow label="Transfer">
             <div class="tw-flex tw-justify-between tw-items-center tw-gap-9">
                 <div class="tw-flex tw-flex-1 tw-items-center tw-gap-2.5">

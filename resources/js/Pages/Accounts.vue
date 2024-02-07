@@ -15,7 +15,7 @@ const tabs = [
     { label: "History", name: "history" },
 ];
 
-const activeTab = ref("history");
+const activeTab = ref("accounts");
 const accountForm = ref(null);
 const showForm = ref(false);
 const accountTransferForm = ref(null);
