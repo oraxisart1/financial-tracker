@@ -17,15 +17,16 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(["store", "cancel"]);
+const emit = defineEmits(["save", "cancel"]);
 
 const form = useForm({
     accountFrom: null,
     accountTo: null,
     amount: "",
     date: format(new Date(), "yyyy-MM-dd"),
-    comment: "",
+    description: "",
     convertedAmount: "",
+    id: null,
 });
 const quasar = useQuasar();
 
@@ -46,21 +47,25 @@ const accountToOptions = computed(() => {
 });
 
 const save = () => {
-    form.transform((data) => {
+    const transformed = form.transform((data) => {
         return {
             ...data,
             account_from_id: data.accountFrom?.id,
             account_to_id: data.accountTo?.id,
             converted_amount: data.convertedAmount,
         };
-    }).post(route("account-transfers.store"), {
+    });
+
+    const options = {
         onSuccess: () => {
             quasar.notify({
                 color: "positive",
-                message: "Transfer successfully created",
+                message: form.id
+                    ? "Transfer successfully updated"
+                    : "Transfer successfully created",
             });
 
-            emit("store");
+            emit("save");
         },
         onError(errors) {
             if (!Object.values(errors).length) {
@@ -70,8 +75,46 @@ const save = () => {
                 });
             }
         },
-    });
+    };
+
+    if (form.id) {
+        transformed.patch(
+            route("account-transfers.update", { accountTransfer: form.id }),
+            options,
+        );
+    } else {
+        transformed.post(route("account-transfers.store"), options);
+    }
 };
+
+const setModel = (transfer) => {
+    const accountFrom = props.accounts.find(
+        (accountFrom) => accountFrom.id === transfer.account_from.id,
+    );
+    form.accountFrom = accountFrom || null;
+
+    const accountTo = props.accounts.find(
+        (accountTo) => accountTo.id === transfer.account_to.id,
+    );
+    form.accountTo = accountTo || null;
+
+    form.amount = +Number(transfer.amount || 0).toFixed(2);
+    if (accountFrom?.currency.code !== accountTo?.currency.code) {
+        form.convertedAmount = +Number(transfer.converted_amount || 0).toFixed(
+            2,
+        );
+    }
+
+    form.date = transfer.date;
+    form.description = transfer.description;
+    form.id = transfer.id;
+};
+
+const clear = () => {
+    form.reset();
+};
+
+defineExpose({ setModel, clear });
 </script>
 
 <template>
@@ -159,7 +202,7 @@ const save = () => {
         </FormRow>
 
         <FormRow label="Comment">
-            <TextInput v-model="form.comment" />
+            <TextInput v-model="form.description" />
         </FormRow>
 
         <div class="tw-justify-center tw-flex tw-gap-12 tw-col-span-full">

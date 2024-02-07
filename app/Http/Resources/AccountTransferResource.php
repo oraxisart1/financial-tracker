@@ -20,7 +20,8 @@ class AccountTransferResource extends JsonResource
             'account_to' => $this->accountTo,
             'amount' => $this->amount,
             'converted_amount' => $this->converted_amount,
-            'date' => $this->date,
+            'date' => $this->date->format('Y-m-d'),
+            'description' => $this->description,
         ];
     }
 }

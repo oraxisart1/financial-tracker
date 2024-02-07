@@ -38,13 +38,17 @@ class AccountTransfersController extends Controller
 
     public function update(UpdateAccountTransferRequest $request, AccountTransfer $accountTransfer)
     {
+        $convertedAmount = $accountTransfer->accountFrom->currency->code === $accountTransfer->accountTo->currency->code
+            ? $request->get('amount')
+            : $request->get('converted_amount');
+
         $this->accountTransferService->update(
             $accountTransfer,
             new AccountTransferDTO(
                 $request->get('account_from_id'),
                 $request->get('account_to_id'),
                 $request->get('amount'),
-                $request->get('converted_amount'),
+                $convertedAmount,
                 Carbon::parse($request->get('date')),
                 $request->get('description'),
             )

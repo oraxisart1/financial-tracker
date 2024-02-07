@@ -5,7 +5,7 @@ import PrimaryButton from "@/Components/UI/Buttons/PrimaryButton.vue";
 import { ref } from "vue";
 import AccountsTable from "@/Components/Feature/Account/AccountsTable.vue";
 import AccountForm from "@/Components/Feature/Account/AccountForm.vue";
-import AddAccountTransferForm from "@/Components/Feature/Account/AddAccountTransferForm.vue";
+import AccountTransferForm from "@/Components/Feature/Account/AccountTransferForm.vue";
 import AccountTransfersTable from "@/Components/Feature/Account/AccountTransfersTable.vue";
 
 const tabs = [
@@ -15,22 +15,18 @@ const tabs = [
     { label: "History", name: "history" },
 ];
 
-const activeTab = ref("accounts");
+const activeTab = ref("history");
 const accountForm = ref(null);
 const showForm = ref(false);
+const accountTransferForm = ref(null);
+const showTransferForm = ref(false);
 
 const selectTab = (tabName) => {
-    if (
-        tabName !== "add_account" ||
-        (tabName === "add_account" && activeTab.value !== tabName)
-    ) {
-        showForm.value = false;
-        accountForm.value.clear();
-    }
+    showForm.value = false;
+    accountForm.value.clear();
 
-    if (tabName === activeTab.value) {
-        return;
-    }
+    showTransferForm.value = false;
+    accountTransferForm.value.clear();
 
     activeTab.value = tabName;
 };
@@ -42,6 +38,11 @@ const onAccountEdit = (account) => {
 
 const closeForm = () => {
     selectTab("accounts");
+};
+
+const onAccountTransferEdit = (transfer) => {
+    accountTransferForm.value.setModel(transfer);
+    showTransferForm.value = true;
 };
 </script>
 
@@ -83,17 +84,19 @@ const closeForm = () => {
                 @save="closeForm"
             />
 
-            <AddAccountTransferForm
-                v-if="activeTab === 'transfer'"
+            <AccountTransferForm
+                v-show="activeTab === 'transfer' || showTransferForm"
+                ref="accountTransferForm"
                 :accounts="$page.props.accounts"
-                @cancel="selectTab('accounts')"
-                @store="selectTab('history')"
+                @cancel="selectTab('history')"
+                @save="selectTab('history')"
             />
 
             <AccountTransfersTable
-                v-if="activeTab === 'history'"
+                v-show="activeTab === 'history' && !showTransferForm"
                 :accounts="$page.props.accounts"
                 :transfers="$page.props.transfers"
+                @edit-click="onAccountTransferEdit"
             />
         </div>
     </div>
