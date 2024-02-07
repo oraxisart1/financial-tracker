@@ -57,7 +57,6 @@ const onMenuEnter = () => {
 };
 
 const onMenuLeave = () => {
-    console.log("test");
     removeClickOutsideHandler();
 };
 

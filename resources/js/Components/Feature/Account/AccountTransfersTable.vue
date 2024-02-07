@@ -4,8 +4,54 @@ import { computed, ref, watch } from "vue";
 import { ArrowLongRightIcon } from "@heroicons/vue/24/outline/index.js";
 import { guessFontColorByBackgroundColor } from "@/Helpers/color.js";
 import { router } from "@inertiajs/vue3";
+import MenuButton from "@/Components/UI/Buttons/MenuButton.vue";
+import ConfirmationDialog from "@/Components/UI/Dialog/ConfirmationDialog.vue";
+import { useQuasar } from "quasar";
 import { format } from "date-fns";
 import { formatCurrency } from "../../../Helpers/number.js";
+
+const rowButtons = [
+    {
+        label: "Edit",
+        icon: "PencilIcon",
+        onClick: (row) => {
+            emit("edit-click", row);
+        },
+    },
+    {
+        label: "Delete",
+        icon: "TrashIcon",
+        onClick: async (row) => {
+            const ok = await confirmationDialog.value.open({
+                title: "Are you sure you want to delete this account transfer?",
+                message: "This will delete this account transfer permanently.",
+            });
+
+            if (ok) {
+                router.delete(
+                    route("account-transfers.destroy", {
+                        accountTransfer: row.id,
+                    }),
+                    {
+                        onSuccess: () => {
+                            quasar.notify({
+                                color: "positive",
+                                message:
+                                    "Account transfer successfully deleted",
+                            });
+                        },
+                        onError() {
+                            quasar.notify({
+                                color: "negative",
+                                message: "Something went wrong",
+                            });
+                        },
+                    },
+                );
+            }
+        },
+    },
+];
 
 const props = defineProps({
     transfers: {
@@ -17,7 +63,11 @@ const props = defineProps({
         required: true,
     },
 });
+const emit = defineEmits(["edit-click"]);
 
+const quasar = useQuasar();
+
+const confirmationDialog = ref(null);
 const filter = ref({
     account: 0,
 });
@@ -76,10 +126,10 @@ const selectAccount = (id) => {
                     <div
                         v-for="transfer in transfers"
                         :key="transfer.id"
-                        class="tw-flex tw-bg-pastel tw-p-3"
+                        class="tw-flex tw-bg-pastel tw-p-3 tw-items-center"
                     >
                         <div
-                            class="tw-flex tw-items-center tw-gap-2.5 tw-flex-1 tw-justify-start"
+                            class="tw-flex tw-items-center tw-gap-2.5 tw-flex-1 tw-justify-start tw-basis-1/3"
                         >
                             <span
                                 :style="{
@@ -107,7 +157,7 @@ const selectAccount = (id) => {
                         </div>
 
                         <div
-                            class="tw-flex tw-items-center tw-gap-2.5 tw-flex-1 tw-justify-start tw-ml-3"
+                            class="tw-flex tw-items-center tw-gap-2.5 tw-flex-1 tw-justify-start tw-ml-3 tw-basis-1/3"
                         >
                             <span
                                 :style="{
@@ -127,6 +177,14 @@ const selectAccount = (id) => {
                                     }}
                                 </span>
                             </div>
+                        </div>
+
+                        <div>
+                            <MenuButton
+                                :items="rowButtons"
+                                :target="transfer"
+                                :visible="true"
+                            />
                         </div>
                     </div>
                 </template>
@@ -163,6 +221,8 @@ const selectAccount = (id) => {
                 <q-btn class="!tw-bg-pastel" icon="add" unelevated></q-btn>
             </div>
         </div>
+
+        <ConfirmationDialog ref="confirmationDialog" />
     </Table>
 </template>
 

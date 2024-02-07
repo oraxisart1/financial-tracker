@@ -63,6 +63,10 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:destroy,accountTransfer');
 });
 
+Route::patch('/account-transfers/{accountTransfer}', [AccountTransfersController::class, 'update'])
+    ->name('account-transfers.update')
+    ->middleware('can:update,accountTransfer');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\DTO\AccountTransferDTO;
 use App\Http\Requests\StoreAccountTransferRequest;
+use App\Http\Requests\UpdateAccountTransferRequest;
 use App\Models\Account;
 use App\Models\AccountTransfer;
 use App\Services\AccountTransferService;
-use DB;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class AccountTransfersController extends Controller
@@ -30,6 +32,23 @@ class AccountTransfersController extends Controller
         ]);
 
         $this->accountTransferService->transferBetweenAccounts($accountFrom, $accountTo, $transfer);
+
+        return redirect()->back();
+    }
+
+    public function update(UpdateAccountTransferRequest $request, AccountTransfer $accountTransfer)
+    {
+        $this->accountTransferService->update(
+            $accountTransfer,
+            new AccountTransferDTO(
+                $request->get('account_from_id'),
+                $request->get('account_to_id'),
+                $request->get('amount'),
+                $request->get('converted_amount'),
+                Carbon::parse($request->get('date')),
+                $request->get('description'),
+            )
+        );
 
         return redirect()->back();
     }

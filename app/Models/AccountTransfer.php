@@ -15,7 +15,6 @@ class AccountTransfer extends Model
         'account_from_id',
         'account_to_id',
         'amount',
-        'amount',
         'converted_amount',
         'date',
         'description',
