@@ -61,11 +61,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/account-transfers/{accountTransfer}', [AccountTransfersController::class, 'destroy'])
         ->name('account-transfers.destroy')
         ->middleware('can:destroy,accountTransfer');
+    Route::patch('/account-transfers/{accountTransfer}', [AccountTransfersController::class, 'update'])
+        ->name('account-transfers.update')
+        ->middleware('can:update,accountTransfer');
 });
-
-Route::patch('/account-transfers/{accountTransfer}', [AccountTransfersController::class, 'update'])
-    ->name('account-transfers.update')
-    ->middleware('can:update,accountTransfer');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])

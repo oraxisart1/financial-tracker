@@ -76,6 +76,91 @@ class UpdateAccountTransferTest extends TestCase
         });
     }
 
+    public function test_user_cannot_update_other_transfer(): void
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $accountFrom = $user->accounts()->save(Account::factory()->create());
+        $accountTo = $user->accounts()->save(Account::factory()->create());
+        $transfer = $otherUser->accountTransfers()->save(
+            AccountTransfer::factory()->create([
+                'account_from_id' => $accountFrom->id,
+                'account_to_id' => $accountTo->id,
+                'date' => Carbon::parse('2024-01-01'),
+                'description' => 'Old description',
+                'amount' => 1000,
+                'converted_amount' => 1000,
+            ])
+        );
+
+        $response = $this->actingAs($user)->patch(
+            route(
+                'account-transfers.update',
+                ['accountTransfer' => $transfer]
+            ),
+            [
+                'account_from_id' => Account::factory()->create()->id,
+                'account_to_id' => Account::factory()->create()->id,
+                'date' => '2024-02-01',
+                'description' => 'New description',
+                'amount' => 500,
+                'converted_amount' => 550,
+            ]
+        );
+
+        $response->assertNotFound();
+        tap($transfer->fresh(), function (AccountTransfer $transfer) use ($accountFrom, $accountTo) {
+            $this->assertTrue($transfer->accountFrom->is($accountFrom));
+            $this->assertTrue($transfer->accountTo->is($accountTo));
+            $this->assertEquals(Carbon::parse('2024-01-01'), $transfer->date);
+            $this->assertEquals('Old description', $transfer->description);
+            $this->assertEqualsWithDelta(1000, $transfer->amount, 0);
+            $this->assertEqualsWithDelta(1000, $transfer->converted_amount, 0);
+        });
+    }
+
+    public function test_guest_cannot_update_any_transfer(): void
+    {
+        $user = User::factory()->create();
+        $accountFrom = $user->accounts()->save(Account::factory()->create());
+        $accountTo = $user->accounts()->save(Account::factory()->create());
+        $transfer = $user->accountTransfers()->save(
+            AccountTransfer::factory()->create([
+                'account_from_id' => $accountFrom->id,
+                'account_to_id' => $accountTo->id,
+                'date' => Carbon::parse('2024-01-01'),
+                'description' => 'Old description',
+                'amount' => 1000,
+                'converted_amount' => 1000,
+            ])
+        );
+
+        $response = $this->patch(
+            route(
+                'account-transfers.update',
+                ['accountTransfer' => $transfer]
+            ),
+            [
+                'account_from_id' => Account::factory()->create()->id,
+                'account_to_id' => Account::factory()->create()->id,
+                'date' => '2024-02-01',
+                'description' => 'New description',
+                'amount' => 500,
+                'converted_amount' => 550,
+            ]
+        );
+
+        $response->assertRedirectToRoute('login');
+        tap($transfer->fresh(), function (AccountTransfer $transfer) use ($accountFrom, $accountTo) {
+            $this->assertTrue($transfer->accountFrom->is($accountFrom));
+            $this->assertTrue($transfer->accountTo->is($accountTo));
+            $this->assertEquals(Carbon::parse('2024-01-01'), $transfer->date);
+            $this->assertEquals('Old description', $transfer->description);
+            $this->assertEqualsWithDelta(1000, $transfer->amount, 0);
+            $this->assertEqualsWithDelta(1000, $transfer->converted_amount, 0);
+        });
+    }
+
     public function test_updating_transfer_accounts()
     {
         $user = User::factory()->create();
