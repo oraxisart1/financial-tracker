@@ -79,4 +79,11 @@ class AccountsController extends Controller
 
         return redirect()->back();
     }
+
+    public function toggle(Account $account)
+    {
+        $account->toggleState();
+
+        return redirect()->back();
+    }
 }

@@ -40,4 +40,20 @@ class AccountTest extends TestCase
 
         $this->assertEqualsWithDelta(1000, $account->balance, 0);
     }
+
+    public function test_toggle_state()
+    {
+        $account = Account::factory()->create([
+            'active' => true,
+        ]);
+        $this->assertEquals(true, $account->fresh()->active);
+
+        $account->toggleState();
+
+        $this->assertEquals(false, $account->fresh()->active);
+
+        $account->toggleState();
+
+        $this->assertEquals(true, $account->fresh()->active);
+    }
 }

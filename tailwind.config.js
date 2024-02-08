@@ -18,11 +18,12 @@ export default {
             },
             colors: {
                 navigation: "#445B5E",
-                "navigation-inactive": "rgba(68, 91, 94, 0.7)",
+                "navigation-inactive": "#7A8C8E",
                 teal: "#4C8286",
-                "light-pastel": "rgba(181, 210, 209, 0.7)",
+                "light-pastel": "#C9DFDE",
                 pastel: "#B5D2D1",
                 light: "#DEE9E6",
+                white: "#F5FBFC",
             },
             fontSize: {
                 md: "16px",

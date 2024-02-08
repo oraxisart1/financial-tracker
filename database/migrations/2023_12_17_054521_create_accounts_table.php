@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->decimal('balance', 19, 4);
             $table->string('color');
             $table->foreignIdFor(User::class);
+            $table->boolean('active')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

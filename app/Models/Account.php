@@ -21,6 +21,11 @@ class Account extends Model
         'currency_id',
         'balance',
         'color',
+        'active',
+    ];
+
+    protected $casts = [
+        'active' => 'bool',
     ];
 
     public function user(): BelongsTo
@@ -59,5 +64,14 @@ class Account extends Model
                 'balance' => $this->balance + $amount,
             ]);
         });
+    }
+
+    public function toggleState(): static
+    {
+        $this->update([
+            'active' => !$this->active,
+        ]);
+
+        return $this;
     }
 }

@@ -54,6 +54,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/accounts/{account}/{mode?}', [AccountsController::class, 'destroy'])
         ->name('accounts.destroy')
         ->middleware('can:destroy,account');
+    Route::post('/accounts/{account}/toggle', [AccountsController::class, 'toggle'])
+        ->name('accounts.toggle')
+        ->middleware('can:toggle,account');
 
     Route::post('/account-transfers', [AccountTransfersController::class, 'store'])
         ->name('account-transfers.store');

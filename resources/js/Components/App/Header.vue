@@ -4,6 +4,7 @@ import Navigation from "@/Components/App/Navigation.vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import { Cog8ToothIcon } from "@heroicons/vue/24/outline/index.js";
 import NavLink from "@/Components/NavLink.vue";
+import AccountsDropdown from "@/Components/App/AccountsDropdown.vue";
 </script>
 
 <template>
@@ -15,7 +16,7 @@ import NavLink from "@/Components/NavLink.vue";
             <Navigation />
         </div>
 
-        <div class="tw-text-3xl">800000</div>
+        <AccountsDropdown />
 
         <div class="tw-flex tw-gap-[10px] tw-items-center">
             <NavLink :href="route('logout')" as="button" method="post"
