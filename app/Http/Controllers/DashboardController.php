@@ -23,6 +23,51 @@ class DashboardController extends Controller
             return redirect()->route('dashboard', ['transaction_type' => TransactionType::EXPENSE->value]);
         }
 
+        $transactionsQuery = $this->buildTransactionsQuery($request);
+
+        $transactions = $transactionsQuery
+            ->paginate(10)
+            ->withQueryString();
+
+        $categories = Auth::user()
+            ->categories()
+            ->where('type', CategoryType::fromTransactionType($transactionsType))
+            ->get();
+
+        $accounts = Auth::user()
+            ->accounts()
+            ->with(['currency'])
+            ->get();
+
+        return Inertia::render(
+            'Dashboard',
+            [
+                'transactions' => TransactionResource::collection($transactions),
+                'categories' => $categories,
+                'accounts' => $accounts,
+                'totalAmount' => $transactionsQuery
+                    ->sum('amount'),
+            ]
+        );
+    }
+
+    public function loadTransactions(Request $request)
+    {
+        $paginator = $this->buildTransactionsQuery($request)
+            ->paginate(10)
+            ->withQueryString();
+        $transactions = TransactionResource::collection($paginator);
+
+        return response()->json([
+            'transactions' => $transactions,
+            'nextPageUrl' => $paginator->nextPageUrl(),
+        ]);
+    }
+
+    private function buildTransactionsQuery(Request $request)
+    {
+        $transactionsType = TransactionType::from($request->get('transaction_type'));
+
         $transactionsQuery = Auth::user()
             ->transactions()
             ->with(['category', 'account', 'currency'])
@@ -46,29 +91,8 @@ class DashboardController extends Controller
             $transactionsQuery->where('category_id', $request->get('category'));
         }
 
-        $transactionsQuery
+        return $transactionsQuery
             ->orderBy('date', 'desc')
             ->orderBy('id', 'desc');
-
-        $transactions = $transactionsQuery->get();
-
-        $categories = Auth::user()
-            ->categories()
-            ->where('type', CategoryType::fromTransactionType($transactionsType))
-            ->get();
-
-        $accounts = Auth::user()
-            ->accounts()
-            ->with(['currency'])
-            ->get();
-
-        return Inertia::render(
-            'Dashboard',
-            [
-                'transactions' => TransactionResource::collection($transactions),
-                'categories' => $categories,
-                'accounts' => $accounts,
-            ]
-        );
     }
 }

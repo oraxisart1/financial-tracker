@@ -82,6 +82,7 @@ watch(serializedFilter, (value, oldValue) => {
     router.get(route("dashboard"), params, {
         preserveState: true,
         replace: true,
+        preserveScroll: false,
     });
 });
 </script>
@@ -135,17 +136,10 @@ watch(serializedFilter, (value, oldValue) => {
                         }}
                     </span>
                     <span>: </span>
-                    <span>{{
-                        formatCurrency(
-                            page.props.transactions.reduce(
-                                (acc, el) => acc + Number(el.amount),
-                                0,
-                            ),
-                        )
-                    }}</span>
+                    <span>{{ formatCurrency(page.props.totalAmount) }}</span>
                 </div>
 
-                <TransactionsChart :transactions="page.props.transactions" />
+                <TransactionsChart :transactions="page.props.transactions[0]" />
             </div>
 
             <div
@@ -158,6 +152,7 @@ watch(serializedFilter, (value, oldValue) => {
         <div class="tw-flex-grow tw-flex-1">
             <TransactionsTable
                 v-show="!showTransactionForm"
+                :key="serializedFilter"
                 :categories="page.props.categories"
                 :filter="filter"
                 :transactions="page.props.transactions"

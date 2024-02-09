@@ -28,6 +28,8 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')
         ->name('dashboard');
+    Route::post('/dashboard/load-transactions', [DashboardController::class, 'loadTransactions'])->middleware('auth')
+        ->name('dashboard.load-transactions');
 
     Route::post('/transactions', [TransactionsController::class, 'store'])
         ->name('transactions.store');

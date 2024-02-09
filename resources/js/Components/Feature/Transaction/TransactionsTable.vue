@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { guessFontColorByBackgroundColor } from "@/Helpers/color.js";
 import Table from "@/Components/UI/Table.vue";
 import MenuButton from "@/Components/UI/Buttons/MenuButton.vue";
@@ -8,6 +8,7 @@ import { useQuasar } from "quasar";
 import ConfirmationDialog from "@/Components/UI/Dialog/ConfirmationDialog.vue";
 import { format } from "date-fns";
 import { formatCurrency } from "@/Helpers/number.js";
+import axios from "axios";
 
 const rowButtons = [
     {
@@ -58,11 +59,14 @@ const emit = defineEmits(["select-category", "edit-click"]);
 
 const quasar = useQuasar();
 
+const loadMoreIntersect = ref(null);
 const confirmationDialog = ref(null);
+const transactions = ref(props.transactions[0]);
+const nextPageUrl = ref(props.transactions.links.next);
 
-const transactions = computed(() => {
+const groupedTransactions = computed(() => {
     const result = {};
-    for (const transaction of props.transactions) {
+    for (const transaction of transactions.value) {
         if (!Array.isArray(result[transaction.date])) {
             result[transaction.date] = [];
         }
@@ -80,6 +84,33 @@ const categories = computed(() => {
 const onCategoryClick = (categoryId) => {
     emit("select-category", categoryId);
 };
+
+const loadMore = async () => {
+    if (!nextPageUrl.value) {
+        return;
+    }
+
+    const [_, searchParams] = nextPageUrl.value.split("?");
+
+    const response = await axios.post(
+        route(
+            "dashboard.load-transactions",
+            Object.fromEntries(new URLSearchParams(searchParams).entries()),
+        ),
+    );
+    transactions.value = [...transactions.value, ...response.data.transactions];
+    nextPageUrl.value = response.data.nextPageUrl;
+};
+
+onMounted(() => {
+    const observer = new IntersectionObserver((entries) =>
+        entries.forEach((entry) => entry.isIntersecting && loadMore(), {
+            rootMargin: "-150px 0px 0px 0px",
+        }),
+    );
+
+    observer.observe(loadMoreIntersect.value);
+});
 </script>
 
 <template>
@@ -89,9 +120,12 @@ const onCategoryClick = (categoryId) => {
         <div
             class="tw-flex tw-overflow-hidden tw-gap-0.5 tw-divide-x-2 tw-max-h-full tw-min-h-full"
         >
-            <div class="tw-overflow-y-auto tw-space-y-0.5 tw-pt-1 tw-basis-3/4">
+            <div
+                class="tw-overflow-y-auto tw-space-y-0.5 tw-pt-1 tw-basis-3/4"
+                scroll-region
+            >
                 <template
-                    v-for="(transactions, date) in transactions"
+                    v-for="(transactions, date) in groupedTransactions"
                     :key="date"
                 >
                     <div class="tw-text-center tw-underline">
@@ -145,12 +179,14 @@ const onCategoryClick = (categoryId) => {
                         </div>
                     </div>
                 </template>
+
+                <span ref="loadMoreIntersect"></span>
             </div>
 
             <div
                 class="tw-basis-1/4 tw-flex tw-flex-col justify-between tw-gap-2"
             >
-                <div class="tw-overflow-y-scroll">
+                <div class="tw-overflow-y-scroll" scroll-region>
                     <div
                         v-for="category in categories"
                         :class="`tw-text-center tw-px-4 tw-cursor-pointer tw-text-md tw-font-medium ${
