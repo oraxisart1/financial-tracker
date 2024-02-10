@@ -2,10 +2,6 @@
 import { defineAsyncComponent, ref } from "vue";
 
 const props = defineProps({
-    visible: {
-        type: Boolean,
-        default: false,
-    },
     items: {
         type: Array,
         required: true,
@@ -108,7 +104,6 @@ const removeScrollHandler = () => {
 <template>
     <div ref="container" class="tw-relative">
         <span
-            v-show="visible || isOpen"
             ref="button"
             class="tw-text-xl tw-cursor-pointer tw-select-none"
             @click="toggle"

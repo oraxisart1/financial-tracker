@@ -1,14 +1,14 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { guessFontColorByBackgroundColor } from "@/Helpers/color.js";
 import Table from "@/Components/UI/Table.vue";
 import MenuButton from "@/Components/UI/Buttons/MenuButton.vue";
 import { router } from "@inertiajs/vue3";
 import { useQuasar } from "quasar";
 import ConfirmationDialog from "@/Components/UI/Dialog/ConfirmationDialog.vue";
+import axios from "axios";
 import { format } from "date-fns";
 import { formatCurrency } from "@/Helpers/number.js";
-import axios from "axios";
 
 const rowButtons = [
     {
@@ -111,6 +111,14 @@ onMounted(() => {
 
     observer.observe(loadMoreIntersect.value);
 });
+
+watch(
+    () => props.transactions,
+    (value) => {
+        transactions.value = value[0];
+        nextPageUrl.value = value.links.next;
+    },
+);
 </script>
 
 <template>
@@ -174,7 +182,7 @@ onMounted(() => {
                             <MenuButton
                                 :items="rowButtons"
                                 :target="transaction"
-                                :visible="true"
+                                class="tw-hidden menu-button"
                             />
                         </div>
                     </div>
@@ -219,4 +227,8 @@ onMounted(() => {
     </Table>
 </template>
 
-<style scoped></style>
+<style scoped>
+.transaction-row:hover .menu-button {
+    display: block;
+}
+</style>

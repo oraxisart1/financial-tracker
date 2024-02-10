@@ -74,7 +74,7 @@ const confirmationDialog = ref(null);
         <div class="tw-flex tw-flex-col tw-gap-0.5">
             <div
                 v-for="account in accounts"
-                class="tw-flex tw-bg-pastel tw-p-3 tw-items-center tw-gap-10"
+                class="tw-flex tw-bg-pastel tw-p-3 tw-items-center tw-gap-10 account-row"
             >
                 <div class="tw-basis-2/3 tw-flex tw-items-center tw-gap-x-4">
                     <span
@@ -104,7 +104,7 @@ const confirmationDialog = ref(null);
                     <MenuButton
                         :items="rowButtons"
                         :target="account"
-                        :visible="true"
+                        class="tw-hidden menu-button"
                     />
                 </div>
             </div>
@@ -118,4 +118,8 @@ const confirmationDialog = ref(null);
     </Table>
 </template>
 
-<style scoped></style>
+<style scoped>
+.account-row:hover .menu-button {
+    display: block;
+}
+</style>

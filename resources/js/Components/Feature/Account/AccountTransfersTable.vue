@@ -126,7 +126,7 @@ const selectAccount = (id) => {
                     <div
                         v-for="transfer in transfers"
                         :key="transfer.id"
-                        class="tw-flex tw-bg-pastel tw-p-3 tw-items-center"
+                        class="tw-flex tw-bg-pastel tw-p-3 tw-items-center transfer-row"
                     >
                         <div
                             class="tw-flex tw-items-center tw-gap-2.5 tw-flex-1 tw-justify-start tw-basis-1/3"
@@ -179,11 +179,13 @@ const selectAccount = (id) => {
                             </div>
                         </div>
 
-                        <div>
+                        <div
+                            class="tw-basis-10 tw-flex tw-justify-center tw-items-center tw-h-full"
+                        >
                             <MenuButton
                                 :items="rowButtons"
                                 :target="transfer"
-                                :visible="true"
+                                class="tw-hidden menu-button"
                             />
                         </div>
                     </div>
@@ -226,4 +228,8 @@ const selectAccount = (id) => {
     </Table>
 </template>
 
-<style scoped></style>
+<style scoped>
+.transfer-row:hover .menu-button {
+    display: block;
+}
+</style>

@@ -81,7 +81,6 @@ watch(serializedFilter, (value, oldValue) => {
 
     router.get(route("dashboard"), params, {
         preserveState: true,
-        replace: true,
         preserveScroll: false,
     });
 });
