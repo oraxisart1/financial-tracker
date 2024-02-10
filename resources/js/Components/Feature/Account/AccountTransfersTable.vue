@@ -3,12 +3,13 @@ import Table from "@/Components/UI/Table.vue";
 import { computed, ref, watch } from "vue";
 import { ArrowLongRightIcon } from "@heroicons/vue/24/outline/index.js";
 import { guessFontColorByBackgroundColor } from "@/Helpers/color.js";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 import MenuButton from "@/Components/UI/Buttons/MenuButton.vue";
 import ConfirmationDialog from "@/Components/UI/Dialog/ConfirmationDialog.vue";
 import { useQuasar } from "quasar";
 import { format } from "date-fns";
-import { formatCurrency } from "../../../Helpers/number.js";
+import { formatCurrency } from "@/Helpers/number.js";
+import axios from "axios";
 
 const rowButtons = [
     {
@@ -55,7 +56,7 @@ const rowButtons = [
 
 const props = defineProps({
     transfers: {
-        type: Array,
+        type: Object,
         required: true,
     },
     accounts: {
@@ -66,15 +67,18 @@ const props = defineProps({
 const emit = defineEmits(["edit-click"]);
 
 const quasar = useQuasar();
+const page = usePage();
 
 const confirmationDialog = ref(null);
 const filter = ref({
-    account: 0,
+    account: Number(page.props.query.account_id || 0),
 });
+const transfers = ref(props.transfers[0]);
+const nextPageUrl = ref(props.transfers.links.next);
 
-const transfers = computed(() => {
+const groupedTransfers = computed(() => {
     const result = {};
-    for (const transfer of props.transfers) {
+    for (const transfer of transfers.value) {
         if (!Array.isArray(result[transfer.date])) {
             result[transfer.date] = [];
         }
@@ -84,10 +88,33 @@ const transfers = computed(() => {
 
     return result;
 });
+const serializedFilter = computed(() => JSON.stringify(filter.value));
 
 const accounts = computed(() => {
     return [{ title: "All", color: "#D70040", id: 0 }, ...props.accounts];
 });
+
+const selectAccount = (id) => {
+    filter.value.account = id;
+};
+
+const loadMore = async () => {
+    if (!nextPageUrl.value) {
+        return;
+    }
+
+    const [, searchParams] = nextPageUrl.value.split("?");
+
+    const response = await axios.get(
+        route(
+            "api.account-transfers.index",
+            Object.fromEntries(new URLSearchParams(searchParams).entries()),
+        ),
+    );
+
+    transfers.value = [...transfers.value, ...response.data.accountTransfers];
+    nextPageUrl.value = response.data.nextPageUrl;
+};
 
 watch(
     filter,
@@ -99,26 +126,34 @@ watch(
 
         router.get(route("accounts.index"), params, {
             preserveState: true,
-            replace: true,
+            preserveScroll: false,
         });
     },
     { deep: true },
 );
-
-const selectAccount = (id) => {
-    filter.value.account = id;
-};
+watch(
+    () => props.transfers,
+    (value) => {
+        transfers.value = value[0];
+        nextPageUrl.value = value.links.next;
+    },
+);
 </script>
 
 <template>
-    <Table title="History">
+    <Table :key="serializedFilter" title="History">
         <div
             class="tw-flex tw-overflow-hidden tw-gap-0.5 tw-divide-x-2 tw-min-h-full tw-max-h-full"
         >
             <q-list
+                v-infinite-scroll="loadMore"
                 class="tw-overflow-y-auto tw-space-y-0.5 tw-pt-1 tw-basis-3/4"
+                scroll-region
             >
-                <template v-for="(transfers, date) in transfers" :key="date">
+                <template
+                    v-for="(transfers, date) in groupedTransfers"
+                    :key="date"
+                >
                     <div class="tw-text-center tw-underline">
                         {{ format(date, "PP") }}
                     </div>

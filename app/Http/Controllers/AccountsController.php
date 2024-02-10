@@ -47,6 +47,11 @@ class AccountsController extends Controller
                 ->where('account_from_id', $accountId)
                 ->orWhere('account_to_id', $accountId);
         }
+
+        $transfersPaginator = $transfersQuery
+            ->paginate(config('app.pagination_size'))
+            ->withQueryString();
+
         return Inertia::render(
             'Accounts',
             [
@@ -57,7 +62,7 @@ class AccountsController extends Controller
                     ->get(),
                 'currencies' => CurrencyResource::collection(Currency::all()),
                 'transfers' => AccountTransferResource::collection(
-                    $transfersQuery->get()
+                    $transfersPaginator
                 ),
             ]
         );
