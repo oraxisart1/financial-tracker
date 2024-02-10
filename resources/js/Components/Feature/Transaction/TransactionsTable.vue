@@ -102,16 +102,6 @@ const loadMore = async () => {
     nextPageUrl.value = response.data.nextPageUrl;
 };
 
-onMounted(() => {
-    const observer = new IntersectionObserver((entries) =>
-        entries.forEach((entry) => entry.isIntersecting && loadMore(), {
-            rootMargin: "-150px 0px 0px 0px",
-        }),
-    );
-
-    observer.observe(loadMoreIntersect.value);
-});
-
 watch(
     () => props.transactions,
     (value) => {
@@ -129,6 +119,7 @@ watch(
             class="tw-flex tw-overflow-hidden tw-gap-0.5 tw-divide-x-2 tw-max-h-full tw-min-h-full"
         >
             <div
+                v-infinite-scroll="loadMore"
                 class="tw-overflow-y-auto tw-space-y-0.5 tw-pt-1 tw-basis-3/4"
                 scroll-region
             >
@@ -187,8 +178,6 @@ watch(
                         </div>
                     </div>
                 </template>
-
-                <span ref="loadMoreIntersect"></span>
             </div>
 
             <div

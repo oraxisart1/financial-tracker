@@ -15,6 +15,7 @@ import "@quasar/extras/material-icons/material-icons.css";
 import "quasar/src/css/index.sass";
 import keyPress from "@/Directives/keyPress.js";
 import clickOutside from "@/Directives/clickOutside.js";
+import infiniteScroll from "@/Directives/infiniteScroll.js";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -33,6 +34,7 @@ createInertiaApp({
             .use(Quasar, { plugins: [Notify] })
             .directive("key-press", keyPress)
             .directive("click-outside", clickOutside)
+            .directive("infinite-scroll", infiniteScroll)
             .mount(el);
     },
     progress: {
