@@ -5,6 +5,7 @@ namespace Tests\Feature\AccountTransfer;
 use App\Models\Account;
 use App\Models\AccountTransfer;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -138,5 +139,45 @@ class GetAccountTransfersApiTest extends TestCase
         );
 
         $this->assertCount(2, $response->json('accountTransfers'));
+    }
+
+    public function test_correct_ordering()
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $transferA = $user->accountTransfers()->save(
+            AccountTransfer::factory()->create(['date' => Carbon::parse('2 days ago')])
+        );
+        $transferB = $user->accountTransfers()->save(
+            AccountTransfer::factory()->create(['date' => Carbon::parse('now')])
+        );
+        $transferC = $user->accountTransfers()->save(
+            AccountTransfer::factory()->create(['date' => Carbon::parse('1 day ago')])
+        );
+        $transferD = $user->accountTransfers()->save(
+            AccountTransfer::factory()->create(['date' => Carbon::parse('now')])
+        );
+
+        $order = collect([
+            $transferD,
+            $transferB,
+            $transferC,
+            $transferA,
+        ]);
+
+        $response = $this->getJson(
+            route(
+                'api.account-transfers.index',
+                [
+                    'per_page' => 4,
+                ]
+            )
+        );
+
+        $this->assertEquals(
+            $order->pluck('id'),
+            collect($response->json('accountTransfers'))->pluck('id')
+        );
     }
 }

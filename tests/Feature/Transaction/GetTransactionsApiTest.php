@@ -210,4 +210,44 @@ class GetTransactionsApiTest extends TestCase
         $this->assertTrue($transactionA->is(Transaction::find($response->json('transactions')[0]['id'])));
         $this->assertCount(1, $response->json('transactions'));
     }
+
+    public function test_correct_ordering()
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $transactionsA = $user->transactions()->save(
+            Transaction::factory()->create(['date' => Carbon::parse('2 days ago')])
+        );
+        $transactionsB = $user->transactions()->save(
+            Transaction::factory()->create(['date' => Carbon::parse('now')])
+        );
+        $transactionsC = $user->transactions()->save(
+            Transaction::factory()->create(['date' => Carbon::parse('1 day ago')])
+        );
+        $transactionsD = $user->transactions()->save(
+            Transaction::factory()->create(['date' => Carbon::parse('now')])
+        );
+
+        $order = collect([
+            $transactionsD,
+            $transactionsB,
+            $transactionsC,
+            $transactionsA,
+        ]);
+
+        $response = $this->getJson(
+            route(
+                'api.transactions.index',
+                [
+                    'per_page' => 4,
+                ]
+            )
+        );
+
+        $this->assertEquals(
+            $order->pluck('id'),
+            collect($response->json('transactions'))->pluck('id')
+        );
+    }
 }

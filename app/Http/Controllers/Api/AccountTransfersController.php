@@ -13,6 +13,8 @@ class AccountTransfersController extends Controller
     {
         $transfersQuery = Auth::user()
             ->accountTransfers()
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
             ->with(['accountFrom', 'accountTo', 'accountFrom.currency', 'accountTo.currency']);
 
         $accountId = $request->get('account_id');
