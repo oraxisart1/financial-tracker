@@ -29,8 +29,9 @@ class AccountTransferFactory extends Factory
             'account_to_id' => fn() => Account::factory([
                 'currency_id' => Currency::findByCode('USD'),
             ])->create()->id,
-            'amount' => 1000,
-            'date' => Carbon::parse('2024-01-01'),
+            'amount' => fake()->randomFloat(2, 0, 1000),
+            'converted_amount' => fake()->randomFloat(2, 0, 1000),
+            'date' => Carbon::parse(fake()->dateTimeThisYear()),
         ];
     }
 }

@@ -5,10 +5,12 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Enums\CategoryType;
 use App\Models\Account;
+use App\Models\AccountTransfer;
 use App\Models\Category;
 use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\AccountTransferService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
 
@@ -62,6 +64,19 @@ class DatabaseSeeder extends Seeder
                 $account = $user->accounts()->inRandomOrder()->first();
                 $account->addTransaction($transaction);
             }
+        }
+
+        for ($i = 0; $i < 100; $i++) {
+            $accountFrom = $user->accounts()->inRandomOrder()->first();
+            $accountTo = $user->accounts()->whereNot('id', $accountFrom->id)->inRandomOrder()->first();
+
+            app(AccountTransferService::class)->transferBetweenAccounts(
+                $accountFrom,
+                $accountTo,
+                AccountTransfer::factory()->make([
+                    'user_id' => $user->id,
+                ])
+            );
         }
     }
 }
