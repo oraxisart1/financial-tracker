@@ -4,7 +4,6 @@ namespace Feature\Transaction;
 
 use App\Enums\TransactionType;
 use App\Models\Account;
-use App\Models\AccountTransfer;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
@@ -60,16 +59,14 @@ class GetTransactionsApiTest extends TestCase
         $this->assertTrue($transaction->is(Transaction::find($response->json('transactions')[0]['id'])));
     }
 
-    public function test_guest_cannot_get_any_account_transfers(): void
+    public function test_guest_cannot_get_any_transactions(): void
     {
-        AccountTransfer::factory(config('app.pagination_size'))->create();
-
         $response = $this->getJson(route('api.transactions.index'));
 
         $response->assertUnauthorized();
     }
 
-    public function test_paginating_account_transfers()
+    public function test_paginating_transactions()
     {
         $user = User::factory()->create();
         $transactionA = $user->transactions()->save(

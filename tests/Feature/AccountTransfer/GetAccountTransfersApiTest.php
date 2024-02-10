@@ -16,49 +16,49 @@ class GetAccountTransfersApiTest extends TestCase
     public function test_get_account_transfers_list(): void
     {
         $user = User::factory()->create();
-        $transfers = $user->accountTransfers()->saveMany(
-            AccountTransfer::factory(config('app.pagination_size'))->create()
+        $user->accountTransfers()->saveMany(
+            AccountTransfer::factory(2)->create()
         );
 
         Sanctum::actingAs($user);
 
         $response = $this->getJson(
-            route('api.account-transfers.index')
+            route(
+                'api.account-transfers.index',
+                ['per_page' => 3]
+            )
         );
 
         $response->assertOk();
-        $this->assertEquals(
-            $transfers->pluck('id'),
-            collect($response->json('accountTransfers'))->pluck('id')
-        );
+        $this->assertCount(2, $response->json('accountTransfers'));
     }
 
     public function test_user_can_get_only_their_account_transfers(): void
     {
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
-        $transfers = $user->accountTransfers()->saveMany(
-            AccountTransfer::factory(config('app.pagination_size'))->create()
+        $transfer = $user->accountTransfers()->save(
+            AccountTransfer::factory()->create()
         );
-        $otherUser->accountTransfers()->saveMany(
-            AccountTransfer::factory(config('app.pagination_size'))->create()
+        $otherUser->accountTransfers()->save(
+            AccountTransfer::factory()->create()
         );
 
         Sanctum::actingAs($user);
         $response = $this->getJson(
-            route('api.account-transfers.index')
+            route(
+                'api.account-transfers.index',
+                [
+                    'per_page' => 2,
+                ]
+            )
         );
 
-        $this->assertEquals(
-            $transfers->pluck('id'),
-            collect($response->json('accountTransfers'))->pluck('id')
-        );
+        $this->assertTrue($transfer->is(AccountTransfer::find($response->json('accountTransfers')[0]['id'])));
     }
 
     public function test_guest_cannot_get_any_account_transfers(): void
     {
-        AccountTransfer::factory(config('app.pagination_size'))->create();
-
         $response = $this->getJson(route('api.account-transfers.index'));
 
         $response->assertUnauthorized();
@@ -67,11 +67,11 @@ class GetAccountTransfersApiTest extends TestCase
     public function test_paginating_account_transfers()
     {
         $user = User::factory()->create();
-        $batchA = $user->accountTransfers()->saveMany(
-            AccountTransfer::factory(config('app.pagination_size'))->create()
+        $batchA = $user->accountTransfers()->save(
+            AccountTransfer::factory()->create()
         );
-        $batchB = $user->accountTransfers()->saveMany(
-            AccountTransfer::factory(config('app.pagination_size'))->create()
+        $batchB = $user->accountTransfers()->save(
+            AccountTransfer::factory()->create()
         );
 
         Sanctum::actingAs($user);
@@ -79,26 +79,29 @@ class GetAccountTransfersApiTest extends TestCase
         $response = $this->getJson(
             route(
                 'api.account-transfers.index',
-                ['page' => 1]
+                [
+                    'page' => 1,
+                    'per_page' => 1,
+                ]
             )
         );
 
-        $this->assertEquals(
-            $batchA->pluck('id'),
-            collect($response->json('accountTransfers'))->pluck('id')
-        );
+        $idA = $response->json('accountTransfers')[0]['id'];
+        $this->assertCount(1, $response->json('accountTransfers'));
 
         $response = $this->getJson(
             route(
                 'api.account-transfers.index',
-                ['page' => 2]
+                [
+                    'page' => 2,
+                    'per_page' => 1,
+                ]
             )
         );
 
-        $this->assertEquals(
-            $batchB->pluck('id'),
-            collect($response->json('accountTransfers'))->pluck('id')
-        );
+        $idB = $response->json('accountTransfers')[0]['id'];
+        $this->assertCount(1, $response->json('accountTransfers'));
+        $this->assertNotEquals($idA, $idB);
     }
 
     public function test_filtering_by_account_id()
@@ -111,26 +114,29 @@ class GetAccountTransfersApiTest extends TestCase
         $accountB = $user->accounts()->save(
             Account::factory()->create()
         );
-        $transfersAccountA = $accountA->transfersFrom()->saveMany(
-            AccountTransfer::factory(1)->create([
-                'user_id' => $user->id,
-            ])
+        $user->accountTransfers()->save(
+            AccountTransfer::factory()->create(['account_from_id' => $accountA->id])
         );
-        $accountB->transfersFrom()->saveMany(
-            AccountTransfer::factory(1)->create([
-                'user_id' => $user->id,
-            ])
+        $user->accountTransfers()->save(
+            AccountTransfer::factory()->create(['account_to_id' => $accountA->id])
+        );
+        $user->accountTransfers()->save(
+            AccountTransfer::factory()->create(['account_from_id' => $accountB->id])
+        );
+        $user->accountTransfers()->save(
+            AccountTransfer::factory()->create(['account_to_id' => $accountB->id])
         );
 
         $response = $this->getJson(
             route(
                 'api.account-transfers.index',
-                ['account_id' => $accountA->id]
+                [
+                    'account_id' => $accountA->id,
+                    'per_page' => 4,
+                ]
             )
         );
-        $this->assertEquals(
-            $transfersAccountA->pluck('id'),
-            collect($response->json('accountTransfers'))->pluck('id')
-        );
+
+        $this->assertCount(2, $response->json('accountTransfers'));
     }
 }

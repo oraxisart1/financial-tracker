@@ -22,7 +22,7 @@ class AccountTransfersController extends Controller
         }
 
         $paginator = $transfersQuery
-            ->paginate(10)
+            ->paginate($request->perPage())
             ->withQueryString();
         return response()->json([
             'accountTransfers' => AccountTransferResource::collection($paginator),
