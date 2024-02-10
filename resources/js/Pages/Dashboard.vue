@@ -16,7 +16,7 @@ const transactionForm = ref(null);
 const showTransactionForm = ref(false);
 const filter = ref({
     transactionType: page.props.query.transaction_type,
-    category: Number(page.props.query.category || ""),
+    category: Number(page.props.query.category_id || ""),
     date: [
         page.props.query.date_from || format(new Date(), "yyyy-MM-01"),
         page.props.query.date_to ||
@@ -76,7 +76,7 @@ watch(serializedFilter, (value, oldValue) => {
     }
 
     if (filter.value.category) {
-        params.category = filter.value.category;
+        params.category_id = filter.value.category;
     }
 
     router.get(route("dashboard"), params, {

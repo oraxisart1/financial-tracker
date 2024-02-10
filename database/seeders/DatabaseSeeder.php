@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
         );
 
         foreach (Category::all() as $category) {
-            for ($i = 0; $i < 9; $i++) {
+            for ($i = 0; $i < 20; $i++) {
                 $transaction = Transaction::factory()->make(
                     [
                         'user_id' => $user->id,

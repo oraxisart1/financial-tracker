@@ -167,7 +167,7 @@ class DashboardTest extends TestCase
                 [
                     'transaction_type' => TransactionType::INCOME->value,
                     'all_time' => true,
-                    'category' => $categoryA->id,
+                    'category_id' => $categoryA->id,
                 ]
             )
         );
@@ -229,54 +229,5 @@ class DashboardTest extends TestCase
         $response->assertInertia(fn(AssertableInertia $page) => $page
             ->component('Dashboard')
             ->has('transactions.0', 1));
-    }
-
-    public function test_loading_more_transactions()
-    {
-        $user = User::factory()->create();
-        $batchA = $user->transactions()->saveMany(
-            Transaction::factory(10)->create([
-                'type' => TransactionType::INCOME,
-                'date' => Carbon::parse('2024-12-31'),
-            ])
-        );
-        $batchB = $user->transactions()->saveMany(
-            Transaction::factory(10)->create([
-                'type' => TransactionType::INCOME,
-                'date' => Carbon::parse('2024-01-01'),
-            ])
-        );
-
-        $response = $this->actingAs($user)->post(
-            route(
-                'dashboard.load-transactions',
-                [
-                    'page' => 1,
-                    'transaction_type' => TransactionType::INCOME->value,
-                    'all_time' => 1,
-                ]
-            )
-        );
-
-        $this->assertEquals(
-            collect($response->json('transactions'))->pluck('id'),
-            $batchA->pluck('id')->reverse()->values()
-        );
-
-        $response = $this->actingAs($user)->post(
-            route(
-                'dashboard.load-transactions',
-                [
-                    'page' => 2,
-                    'transaction_type' => TransactionType::INCOME->value,
-                    'all_time' => 1,
-                ]
-            )
-        );
-
-        $this->assertEquals(
-            collect($response->json('transactions'))->pluck('id'),
-            $batchB->pluck('id')->reverse()->values()
-        );
     }
 }

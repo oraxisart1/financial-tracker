@@ -59,7 +59,6 @@ const emit = defineEmits(["select-category", "edit-click"]);
 
 const quasar = useQuasar();
 
-const loadMoreIntersect = ref(null);
 const confirmationDialog = ref(null);
 const transactions = ref(props.transactions[0]);
 const nextPageUrl = ref(props.transactions.links.next);
@@ -90,11 +89,11 @@ const loadMore = async () => {
         return;
     }
 
-    const [_, searchParams] = nextPageUrl.value.split("?");
+    const [, searchParams] = nextPageUrl.value.split("?");
 
-    const response = await axios.post(
+    const response = await axios.get(
         route(
-            "dashboard.load-transactions",
+            "api.transactions.index",
             Object.fromEntries(new URLSearchParams(searchParams).entries()),
         ),
     );

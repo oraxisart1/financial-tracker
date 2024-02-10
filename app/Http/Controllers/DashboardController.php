@@ -87,8 +87,8 @@ class DashboardController extends Controller
                 ->where('date', '<=', $dateTo);
         }
 
-        if ($request->get('category')) {
-            $transactionsQuery->where('category_id', $request->get('category'));
+        if ($request->get('category_id')) {
+            $transactionsQuery->where('category_id', $request->get('category_id'));
         }
 
         return $transactionsQuery
