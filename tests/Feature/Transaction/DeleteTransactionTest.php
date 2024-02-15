@@ -2,10 +2,15 @@
 
 namespace Tests\Feature\Transaction;
 
+use App\DTO\TransactionDTO;
+use App\Enums\CategoryType;
 use App\Enums\TransactionType;
 use App\Models\Account;
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\TransactionService;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -39,12 +44,21 @@ class DeleteTransactionTest extends TestCase
                 'balance' => 0,
             ])
         );
-        $transaction = Transaction::factory()->make([
-            'user_id' => $user->id,
-            'amount' => 1000,
-            'type' => TransactionType::INCOME,
-        ]);
-        $account->addTransaction($transaction);
+        $category = $user->categories()->save(
+            Category::factory()->make([
+                'type' => CategoryType::INCOME,
+            ])
+        );
+        $transaction = app(TransactionService::class)->createTransaction(
+            new TransactionDTO(
+                Carbon::parse('2024-01-01'),
+                1000,
+                'USD',
+                $category->id,
+                $account->id,
+                $user->id
+            )
+        );
         $this->assertEquals(1000, $account->fresh()->balance);
 
         $this->actingAs($user)->delete(
