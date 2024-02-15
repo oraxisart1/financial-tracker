@@ -2,27 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\DTO\TransactionDTO;
 use App\Enums\TransactionType;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
-use App\Models\Account;
 use App\Models\Currency;
 use App\Models\Transaction;
+use App\Services\TransactionService;
 use DB;
-use Illuminate\Support\Facades\Auth;
 
 class TransactionsController extends Controller
 {
+    public function __construct(private readonly TransactionService $transactionService)
+    {
+    }
+
     public function store(StoreTransactionRequest $request)
     {
-        $transaction = Transaction::make([
-            ...$request->validated(),
-            'user_id' => Auth::user()->id,
-            'currency_id' => Currency::findByCode($request->get('currency'))->id,
-        ]);
-
-        Account::find($request->get('account_id'))
-            ->addTransaction($transaction);
+        $this->transactionService->createTransaction(
+            TransactionDTO::fromRequest($request)
+        );
 
         return redirect()->back();
     }

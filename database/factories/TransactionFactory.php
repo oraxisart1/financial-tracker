@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\TransactionType;
 use App\Models\Account;
 use App\Models\Category;
 use App\Models\Currency;
@@ -28,7 +27,6 @@ class TransactionFactory extends Factory
             'description' => fake()->text(),
             'date' => Carbon::parse(fake()->dateTimeThisYear()),
             'user_id' => fn() => User::factory()->create()->id,
-            'type' => TransactionType::EXPENSE,
             'currency_id' => fn() => Currency::findByCode('USD')->id,
             'category_id' => fn() => Category::factory()->create()->id,
             'account_id' => fn() => Account::factory()->create()->id,

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Transaction;
 
+use App\Enums\CategoryType;
 use App\Enums\TransactionType;
 use App\Models\Account;
 use App\Models\Category;
@@ -29,10 +30,10 @@ class StoreTransactionTest extends TestCase
                 'date' => '2023-01-01',
                 'amount' => 1000,
                 'description' => 'Test transaction',
-                'type' => TransactionType::INCOME->value,
                 'currency' => 'USD',
                 'category_id' => $category->id,
                 'account_id' => $account->id,
+                'type' => TransactionType::INCOME->value,
             ]
         );
 
@@ -44,7 +45,6 @@ class StoreTransactionTest extends TestCase
             $this->assertEquals(Carbon::parse('2023-01-01'), $transaction->date);
             $this->assertEquals(1000, $transaction->amount);
             $this->assertEquals('Test transaction', $transaction->description);
-            $this->assertEquals(TransactionType::INCOME, $transaction->type);
             $this->assertTrue($transaction->currency->is(Currency::findByCode('USD')));
             $this->assertTrue($transaction->category->is($category));
             $this->assertTrue($transaction->account->is($account));
@@ -58,24 +58,26 @@ class StoreTransactionTest extends TestCase
             'user_id' => $user->id,
             'balance' => 2000,
         ]);
+        $incomeCategory = $user->categories()->save(Category::factory()->create(['type' => CategoryType::INCOME]));
         $this->assertEqualsWithDelta(2000, $account->balance, 0.0001);
 
         $this->actingAs($user)->post(
             route('transactions.store'),
             $this->validParams([
                 'amount' => 1000,
-                'type' => TransactionType::INCOME->value,
                 'account_id' => $account->id,
+                'category_id' => $incomeCategory->id,
             ])
         );
         $this->assertEqualsWithDelta(3000, $account->fresh()->balance, 0.0001);
 
+        $expenseCategory = $user->categories()->save(Category::factory()->create(['type' => CategoryType::EXPENSE]));
         $this->actingAs($user)->post(
             route('transactions.store'),
             $this->validParams([
                 'amount' => 2000,
-                'type' => TransactionType::EXPENSE->value,
                 'account_id' => $account->id,
+                'category_id' => $expenseCategory->id,
             ])
         );
         $this->assertEqualsWithDelta(1000, $account->fresh()->balance, 0.0001);
@@ -215,36 +217,6 @@ class StoreTransactionTest extends TestCase
         $this->assertCount(1, Transaction::all());
     }
 
-    public function test_type_is_required(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->from('/dashboard')->post(
-            route('transactions.store'),
-            $this->validParams(
-                ['type' => '']
-            )
-        );
-
-        $response->assertSessionHasErrors('type');
-        $this->assertCount(0, Transaction::all());
-    }
-
-    public function test_type_must_be_valid_type(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->from('/dashboard')->post(
-            route('transactions.store'),
-            $this->validParams(
-                ['type' => 'not-valid-type']
-            )
-        );
-
-        $response->assertSessionHasErrors('type');
-        $this->assertCount(0, Transaction::all());
-    }
-
     public function test_currency_is_required(): void
     {
         $user = User::factory()->create();
@@ -348,7 +320,6 @@ class StoreTransactionTest extends TestCase
             'date' => '2023-01-01',
             'amount' => 1000,
             'description' => 'Test transaction',
-            'type' => TransactionType::INCOME->value,
             'currency' => 'USD',
             'category_id' => Category::factory()->create($categoryAttributes)->id,
             'account_id' => Account::factory()->create($accountAttributes)->id,

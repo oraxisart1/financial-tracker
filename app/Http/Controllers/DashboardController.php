@@ -16,11 +16,11 @@ class DashboardController extends Controller
     {
         $transactionsType = $request->get('transaction_type');
         if ($transactionsType) {
-            $transactionsType = TransactionType::tryFrom($transactionsType);
+            $transactionsType = CategoryType::tryFrom($transactionsType);
         }
 
         if (!$transactionsType) {
-            return redirect()->route('dashboard', ['transaction_type' => TransactionType::EXPENSE->value]);
+            return redirect()->route('dashboard', ['transaction_type' => CategoryType::EXPENSE->value]);
         }
 
         $transactionsQuery = $this->buildTransactionsQuery($request);
@@ -31,7 +31,7 @@ class DashboardController extends Controller
 
         $categories = Auth::user()
             ->categories()
-            ->where('type', CategoryType::fromTransactionType($transactionsType))
+            ->where('type', $transactionsType)
             ->get();
 
         $accounts = Auth::user()
@@ -66,7 +66,7 @@ class DashboardController extends Controller
 
     private function buildTransactionsQuery(Request $request)
     {
-        $transactionsType = TransactionType::from($request->get('transaction_type'));
+        $transactionsType = CategoryType::from($request->get('transaction_type'));
 
         $transactionsQuery = Auth::user()
             ->transactions()

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CategoryType;
 use App\Enums\TransactionType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,7 +18,6 @@ class Transaction extends Model
         'amount',
         'description',
         'user_id',
-        'type',
         'currency_id',
         'category_id',
         'account_id',
@@ -25,15 +25,14 @@ class Transaction extends Model
 
     protected $casts = [
         'date' => 'date',
-        'type' => TransactionType::class,
     ];
 
     /**
      * Scope a query to only include users of a given type.
      */
-    public function scopeOfType(Builder $query, TransactionType $type): void
+    public function scopeOfType(Builder $query, CategoryType $type): void
     {
-        $query->where('type', $type);
+        $query->whereRelation('category', 'type', $type);
     }
 
     public function currency(): BelongsTo
@@ -48,7 +47,7 @@ class Transaction extends Model
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class)->withTrashed();
     }
 
     public function account(): BelongsTo

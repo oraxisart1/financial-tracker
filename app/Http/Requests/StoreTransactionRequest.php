@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\TransactionType;
 use App\Models\Account;
 use App\Models\Category;
 use App\Models\Currency;
@@ -32,10 +31,6 @@ class StoreTransactionRequest extends FormRequest
             ],
             'description' => [
                 'nullable',
-            ],
-            'type' => [
-                'required',
-                Rule::enum(TransactionType::class),
             ],
             'currency' => [
                 'required',
