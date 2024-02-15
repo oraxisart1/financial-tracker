@@ -31,4 +31,24 @@ class TransactionService
             $transaction->account->addBalance($multiplier * $transaction->amount);
         });
     }
+
+    public function updateTransaction(Transaction $transaction, TransactionDTO $DTO)
+    {
+        DB::transaction(function () use ($transaction, $DTO) {
+            $oldAccount = $transaction->account;
+            $amountDifference = $DTO->amount - $transaction->amount;
+            $multiplier = $transaction->category->type === CategoryType::INCOME ? 1 : -1;
+
+            $transaction->update($DTO->toArray());
+
+            $newAccount = $transaction->fresh()->account;
+            if ($newAccount->is($oldAccount)) {
+                $account = $transaction->fresh()->account;
+                $account->addBalance($multiplier * $amountDifference);
+            } else {
+                $oldAccount->addBalance(-$multiplier * $DTO->amount);
+                $newAccount->addBalance($multiplier * $DTO->amount);
+            }
+        });
+    }
 }

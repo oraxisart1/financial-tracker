@@ -2,12 +2,15 @@
 
 namespace Tests\Feature\Transaction;
 
+use App\DTO\TransactionDTO;
+use App\Enums\CategoryType;
 use App\Enums\TransactionType;
 use App\Models\Account;
 use App\Models\Category;
 use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\TransactionService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +30,6 @@ class UpdateTransactionTest extends TestCase
             'amount' => 1000,
             'description' => 'Old description',
             'date' => Carbon::parse('2023-11-11'),
-            'type' => TransactionType::INCOME,
             'currency_id' => Currency::findByCode('USD'),
             'category_id' => $category->id,
             'account_id' => $account->id,
@@ -66,14 +68,22 @@ class UpdateTransactionTest extends TestCase
                 'balance' => 0,
             ])
         );
-        $transaction = Transaction::factory()->make([
-            'amount' => 1000,
-            'type' => TransactionType::INCOME,
-            'user_id' => $user->id,
-        ]);
-        $account->addTransaction($transaction);
+        $category = $user->categories()->save(
+            Category::factory()->create(['type' => CategoryType::INCOME])
+        );
 
-        $this->assertEqualsWithDelta(1000, $account->balance, 0);
+        $transaction = app(TransactionService::class)->createTransaction(
+            new TransactionDTO(
+                Carbon::parse('2024-01-01'),
+                1000,
+                'USD',
+                $category->id,
+                $account->id,
+                $user->id
+            )
+        );
+
+        $this->assertEqualsWithDelta(1000, $account->fresh()->balance, 0);
 
         $this->actingAs($user)->patch(
             route('transactions.update', ['transaction' => $transaction]),
@@ -99,12 +109,20 @@ class UpdateTransactionTest extends TestCase
                 'balance' => 0,
             ])
         );
-        $transaction = Transaction::factory()->make([
-            'amount' => 1000,
-            'type' => TransactionType::INCOME,
-            'user_id' => $user->id,
-        ]);
-        $account->addTransaction($transaction);
+        $category = $user->categories()->save(
+            Category::factory()->create(['type' => CategoryType::INCOME])
+        );
+
+        $transaction = app(TransactionService::class)->createTransaction(
+            new TransactionDTO(
+                Carbon::parse('2024-01-01'),
+                1000,
+                'USD',
+                $category->id,
+                $account->id,
+                $user->id
+            )
+        );
 
         $this->assertEqualsWithDelta(1000, $account->fresh()->balance, 0);
         $this->assertEqualsWithDelta(0, $otherAccount->fresh()->balance, 0);

@@ -6,10 +6,8 @@ use App\DTO\TransactionDTO;
 use App\Enums\TransactionType;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
-use App\Models\Currency;
 use App\Models\Transaction;
 use App\Services\TransactionService;
-use DB;
 
 class TransactionsController extends Controller
 {
@@ -28,32 +26,10 @@ class TransactionsController extends Controller
 
     public function update(UpdateTransactionRequest $request, Transaction $transaction)
     {
-        DB::transaction(function () use ($transaction, $request) {
-            $oldAccount = $transaction->account;
-            $amountDifference = $request->get('amount') - $transaction->amount;
-            $multiplier = $transaction->type === TransactionType::INCOME ? 1 : -1;
-
-            $transaction->update([
-                ...$request->validated(),
-                'currency_id' => Currency::findByCode($request->get('currency'))->id,
-            ]);
-
-            $newAccount = $transaction->fresh()->account;
-            if ($newAccount->is($oldAccount)) {
-                $account = $transaction->fresh()->account;
-                $account->update([
-                    'balance' => $account->balance + ($multiplier * $amountDifference),
-                ]);
-            } else {
-                $oldAccount->update([
-                    'balance' => $oldAccount->balance + (-$multiplier * $request->get('amount')),
-                ]);
-
-                $newAccount->update([
-                    'balance' => $newAccount->balance + ($multiplier * $request->get('amount')),
-                ]);
-            }
-        });
+        $this->transactionService->updateTransaction(
+            $transaction,
+            TransactionDTO::fromRequest($request)
+        );
 
         return redirect()->back();
     }
