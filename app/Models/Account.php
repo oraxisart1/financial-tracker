@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\TransactionType;
-use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -51,19 +50,6 @@ class Account extends Model
     public function transfersTo(): HasMany
     {
         return $this->hasMany(AccountTransfer::class, 'account_to_id');
-    }
-
-    public function addTransaction(Transaction $transaction)
-    {
-        DB::transaction(function () use ($transaction) {
-            $this->transactions()->save($transaction);
-
-            $multiplier = $transaction->type === TransactionType::INCOME ? 1 : -1;
-            $amount = $multiplier * $transaction->amount;
-            $this->update([
-                'balance' => $this->balance + $amount,
-            ]);
-        });
     }
 
     public function toggleState(): static
