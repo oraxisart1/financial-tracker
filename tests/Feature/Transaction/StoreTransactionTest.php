@@ -21,7 +21,9 @@ class StoreTransactionTest extends TestCase
     public function test_user_can_create_transaction(): void
     {
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create([
+            'user_id' => $user->id,
+        ]);
         $account = Account::factory()->create(['user_id' => $user->id]);
 
         $response = $this->actingAs($user)->from(route('dashboard'))->post(
@@ -33,7 +35,6 @@ class StoreTransactionTest extends TestCase
                 'currency' => 'USD',
                 'category_id' => $category->id,
                 'account_id' => $account->id,
-                'type' => TransactionType::INCOME->value,
             ]
         );
 
