@@ -22,7 +22,6 @@ import AccountsDropdown from "@/Components/App/AccountsDropdown.vue";
             <NavLink :href="route('logout')" as="button" method="post"
                 >Log out
             </NavLink>
-            <Cog8ToothIcon class="tw-w-10 tw-h-10" />
         </div>
     </div>
 </template>
