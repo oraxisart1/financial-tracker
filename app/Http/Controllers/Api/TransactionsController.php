@@ -17,9 +17,8 @@ class TransactionsController extends Controller
             ->orderBy('id', 'desc');
 
         if ($request->get('type')) {
-            $transactionQuery->where('type', $request->get('type'));
+            $transactionQuery->whereRelation('category', 'type', $request->get('type'));
         }
-
 
         if ($request->get('category_id')) {
             $transactionQuery->where('category_id', $request->get('category_id'));

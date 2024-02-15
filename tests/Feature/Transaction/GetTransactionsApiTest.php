@@ -2,8 +2,10 @@
 
 namespace Feature\Transaction;
 
+use App\Enums\CategoryType;
 use App\Enums\TransactionType;
 use App\Models\Account;
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
@@ -110,11 +112,17 @@ class GetTransactionsApiTest extends TestCase
     {
         $user = User::factory()->create();
         Sanctum::actingAs($user);
-        $transactionA = $user->transactions()->save(
-            Transaction::factory()->create(['type' => TransactionType::INCOME])
+        $incomeCategory = $user->categories()->save(
+            Category::factory()->create(['type' => CategoryType::INCOME])
         );
-        $transactionB = $user->transactions()->save(
-            Transaction::factory()->create(['type' => TransactionType::EXPENSE])
+        $transactionA = $incomeCategory->transactions()->save(
+            Transaction::factory()->create(['user_id' => $user->id])
+        );
+        $expenseCategory = $user->categories()->save(
+            Category::factory()->create(['type' => CategoryType::EXPENSE])
+        );
+        $transactionB = $expenseCategory->transactions()->save(
+            Transaction::factory()->create(['user_id' => $user->id])
         );
 
         $response = $this->getJson(
@@ -122,7 +130,7 @@ class GetTransactionsApiTest extends TestCase
                 'api.transactions.index',
                 [
                     'per_page' => 2,
-                    'type' => TransactionType::INCOME->value,
+                    'type' => CategoryType::INCOME->value,
                 ]
             )
         );
