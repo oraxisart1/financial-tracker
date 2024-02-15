@@ -56,4 +56,18 @@ class AccountTest extends TestCase
 
         $this->assertEquals(true, $account->fresh()->active);
     }
+
+    public function test_add_balance()
+    {
+        $account = Account::factory()->create([
+            'balance' => 0,
+        ]);
+        $this->assertEqualsWithDelta(0, $account->balance, 0);
+
+        $account->addBalance(1000);
+        $this->assertEqualsWithDelta(1000, $account->fresh()->balance, 0);
+
+        $account->addBalance(-500);
+        $this->assertEqualsWithDelta(500, $account->fresh()->balance, 0);
+    }
 }

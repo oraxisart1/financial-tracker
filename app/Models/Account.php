@@ -74,4 +74,9 @@ class Account extends Model
 
         return $this;
     }
+
+    public function addBalance(float $amount)
+    {
+        $this->increment('balance', $amount);
+    }
 }
