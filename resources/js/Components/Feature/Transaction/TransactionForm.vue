@@ -8,6 +8,8 @@ import TextInput from "@/Components/UI/Input/TextInput.vue";
 import SelectInput from "@/Components/UI/Input/SelectInput.vue";
 import { watch } from "vue";
 import useForm from "@/Hooks/useForm.js";
+import FormButton from "@/Components/UI/Buttons/FormButton.vue";
+import FormActions from "@/Components/UI/Form/FormActions.vue";
 
 const props = defineProps({
     transactionType: { type: String },
@@ -226,22 +228,10 @@ defineExpose({ setModel, clear });
                 />
             </div>
 
-            <div class="tw-justify-center tw-flex tw-gap-12 tw-col-span-full">
-                <button
-                    class="tw-bg-navigation tw-text-white tw-py-3 tw-w-[200px] tw-text-2xl tw-font-medium tw-rounded-lg tw-shadow-lg hover:tw-bg-navigation-inactive focus:tw-bg-navigation-inactive"
-                    type="submit"
-                >
-                    Save
-                </button>
-
-                <button
-                    class="tw-bg-navigation-inactive tw-text-white tw-py-3 tw-w-[200px] tw-text-2xl tw-font-medium tw-rounded-lg tw-shadow-lg hover:tw-bg-navigation focus:tw-bg-navigation"
-                    type="reset"
-                    @click="cancel"
-                >
-                    Cancel
-                </button>
-            </div>
+            <FormActions>
+                <FormButton type="submit">Save</FormButton>
+                <FormButton type="reset" @click="cancel">Cancel</FormButton>
+            </FormActions>
         </form>
     </div>
 </template>

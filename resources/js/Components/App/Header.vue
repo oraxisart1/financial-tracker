@@ -1,8 +1,7 @@
 flex-1
 <script setup>
 import Navigation from "@/Components/App/Navigation.vue";
-import ApplicationLogo from "@/Components/ApplicationLogo.vue";
-import { Cog8ToothIcon } from "@heroicons/vue/24/outline/index.js";
+import ApplicationLogo from "@/Components/App/ApplicationLogo.vue";
 import NavLink from "@/Components/NavLink.vue";
 import AccountsDropdown from "@/Components/App/AccountsDropdown.vue";
 </script>

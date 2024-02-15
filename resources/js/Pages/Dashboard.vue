@@ -101,7 +101,7 @@ watch(serializedFilter, (value, oldValue) => {
 <template>
     <Head title="Dashboard" />
 
-    <Tabs v-model="filter.transactionType" :tabs="tabs" />
+    <Tabs v-model="filter.transactionType" :tabs="tabs" class="tw-mb-6" />
 
     <div :class="`tw-flex tw-p-4 tw-gap-x-8 tw-max-h-[89%] tw-min-h-[89%]`">
         <div
