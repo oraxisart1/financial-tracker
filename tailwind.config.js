@@ -40,6 +40,9 @@ export default {
             boxShadow: {
                 none: "none !important",
             },
+            spacing: {
+                7.5: "1.875rem",
+            },
         },
     },
 

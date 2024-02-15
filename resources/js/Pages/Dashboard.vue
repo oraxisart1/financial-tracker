@@ -9,6 +9,18 @@ import { format, lastDayOfMonth } from "date-fns";
 import DateRange from "@/Components/UI/Input/DateRange.vue";
 import TransactionsChart from "@/Components/Feature/Transaction/TransactionsChart.vue";
 import BudgetChart from "@/Components/Feature/Budget/BudgetChart.vue";
+import Tabs from "@/Components/UI/Tabs.vue";
+
+const tabs = [
+    {
+        label: "Expenses",
+        name: "expense",
+    },
+    {
+        label: "Incomes",
+        name: "income",
+    },
+];
 
 const page = usePage();
 
@@ -89,28 +101,7 @@ watch(serializedFilter, (value, oldValue) => {
 <template>
     <Head title="Dashboard" />
 
-    <q-tabs
-        v-model="filter.transactionType"
-        active-class="tw-bg-navigation"
-        class="tw-mb-4"
-        content-class="tw-flex tw-text-white tw-bg-navigation-inactive"
-        indicator-color="transparent"
-        no-caps
-    >
-        <q-tab
-            class="tw-text-center tw-flex-grow tw-flex-1 tw-font-semibold tw-text-3xl !tw-py-0.5"
-            name="expense"
-        >
-            Expenses
-        </q-tab>
-
-        <q-tab
-            class="tw-text-center tw-flex-grow tw-flex-1 tw-font-semibold tw-text-3xl !tw-py-0.5"
-            name="income"
-        >
-            Incomes
-        </q-tab>
-    </q-tabs>
+    <Tabs v-model="filter.transactionType" :tabs="tabs" />
 
     <div :class="`tw-flex tw-p-4 tw-gap-x-8 tw-max-h-[89%] tw-min-h-[89%]`">
         <div

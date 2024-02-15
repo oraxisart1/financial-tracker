@@ -15,10 +15,12 @@ import NavLink from "@/Components/NavLink.vue";
             >Accounts
         </NavLink>
         <NavLink :active="$page.props.routeName === 'charts.index'" href="#"
-            >Charts
-        </NavLink>
-        <NavLink :active="$page.props.routeName === 'budgets.index'" href="#"
             >Budget
+        </NavLink>
+        <NavLink
+            :active="$page.props.routeName === 'settings'"
+            :href="route('settings')"
+            >Settings
         </NavLink>
     </div>
 </template>
