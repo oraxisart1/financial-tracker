@@ -16,7 +16,7 @@ const container = ref();
 const menu = ref();
 const show = ref(false);
 
-const accounts = computed(() => page.props.accounts);
+const accounts = computed(() => page.props.userAccounts);
 
 const amount = computed(() =>
     accounts.value

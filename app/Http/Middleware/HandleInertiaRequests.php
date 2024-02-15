@@ -42,8 +42,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'routeName' => $request->route()?->getName(),
             'query' => $request->query(),
-            'accounts' => Auth::user()
-                ? Auth::user()->accounts
+            'userAccounts' => Auth::user()
+                ? Auth::user()->accounts()->with('currency')->get()
                 : null,
         ];
     }
