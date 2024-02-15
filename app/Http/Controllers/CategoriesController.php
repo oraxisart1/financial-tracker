@@ -15,13 +15,20 @@ class CategoriesController extends Controller
             ...$request->validated(),
             'user_id' => Auth::user()->id,
         ]);
-        return redirect()->route('dashboard');
+        return redirect()->back();
     }
 
     public function update(UpdateCategoryRequest $request, Category $category)
     {
         $category->update($request->validated());
 
-        return redirect()->route('dashboard');
+        return redirect()->back();
+    }
+
+    public function destroy(Category $category)
+    {
+        $category->delete();
+
+        return redirect()->back();
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\AccountTransfersController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TransactionsController;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/categories/{category}', [CategoriesController::class, 'update'])
         ->middleware('can:update,category')
         ->name('categories.update');
+    Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])
+        ->middleware('can:destroy,category')
+        ->name('categories.destroy');
 
     Route::get('/accounts', [AccountsController::class, 'index'])
         ->name('accounts.index');
@@ -67,6 +71,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/account-transfers/{accountTransfer}', [AccountTransfersController::class, 'update'])
         ->name('account-transfers.update')
         ->middleware('can:update,accountTransfer');
+
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
 });
 
 Route::middleware('auth')->group(function () {
