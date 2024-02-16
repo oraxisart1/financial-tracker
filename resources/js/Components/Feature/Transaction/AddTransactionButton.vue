@@ -1,4 +1,6 @@
 <script setup>
+import PrimaryButton from "@/Components/UI/Buttons/PrimaryButton.vue";
+
 const emit = defineEmits(["click"]);
 
 const onClick = (e) => {
@@ -7,12 +9,9 @@ const onClick = (e) => {
 </script>
 
 <template>
-    <button
-        class="tw-bg-navigation tw-text-white tw-px-40 tw-py-1.5 tw-text-3xl tw-font-semibold tw-rounded-lg tw-shadow-lg hover:tw-bg-navigation-inactive focus:tw-bg-navigation-inactive"
-        @click="onClick"
-    >
-        Add
-    </button>
+    <PrimaryButton active class="tw-px-40" size="large" @click="onClick"
+        >Add
+    </PrimaryButton>
 </template>
 
 <style scoped></style>

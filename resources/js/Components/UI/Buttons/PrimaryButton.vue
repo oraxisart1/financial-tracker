@@ -35,17 +35,23 @@ const sizeClasses = computed(() => {
         large: "bold",
     }[props.size];
 
-    const width = props.width;
+    return `tw-text-${fontSize} tw-font-${fontWeight}`;
+});
 
-    return `tw-text-${fontSize} tw-font-${fontWeight} ${
-        width ? `tw-w-[${width}]` : ""
-    }`;
+const styles = computed(() => {
+    const result = {};
+    if (props.width) {
+        result.width = props.width;
+    }
+
+    return result;
 });
 </script>
 
 <template>
     <button
         :class="`${baseClasses} ${stateClasses} ${sizeClasses}`"
+        :style="styles"
         @click="emit('click', $event)"
     >
         <slot />

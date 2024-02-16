@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { guessFontColorByBackgroundColor } from "@/Helpers/color.js";
 import Table from "@/Components/UI/Table.vue";
 import MenuButton from "@/Components/UI/Buttons/MenuButton.vue";
@@ -9,6 +9,8 @@ import ConfirmationDialog from "@/Components/UI/Dialog/ConfirmationDialog.vue";
 import axios from "axios";
 import { format } from "date-fns";
 import { formatCurrency } from "@/Helpers/number.js";
+import { PlusIcon } from "@heroicons/vue/20/solid/index.js";
+import { Link } from "@inertiajs/vue3";
 
 const rowButtons = [
     {
@@ -207,7 +209,18 @@ watch(
                     </div>
                 </div>
 
-                <q-btn class="!tw-bg-pastel" icon="add" unelevated></q-btn>
+                <Link
+                    :href="
+                        route('settings', {
+                            show_form: 1,
+                            category_type: filter.transactionType,
+                        })
+                    "
+                    as="button"
+                    class="tw-bg-pastel tw-py-1.5 tw-flex tw-items-center tw-justify-center tw-rounded-br-md"
+                >
+                    <PlusIcon class="tw-w-6 tw-h-6" />
+                </Link>
             </div>
         </div>
 

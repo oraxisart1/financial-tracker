@@ -18,9 +18,11 @@ const currencyOptions = computed(() => page.props.currencies);
 const userSettings = computed(() => page.props.userSettings);
 
 const form = useForm({
-    currency: currencyOptions.value.find(
-        (o) => o.code === userSettings.value.default_currency.code,
-    ),
+    currency: userSettings.value.default_currency
+        ? currencyOptions.value.find(
+              (o) => o.code === userSettings.value.default_currency.code,
+          )
+        : null,
 });
 
 const cancel = () => {

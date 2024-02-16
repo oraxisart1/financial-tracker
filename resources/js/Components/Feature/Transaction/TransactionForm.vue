@@ -1,5 +1,5 @@
 <script setup>
-import { usePage } from "@inertiajs/vue3";
+import { Link, usePage } from "@inertiajs/vue3";
 import { format } from "date-fns";
 import { useQuasar } from "quasar";
 import NumberInput from "@/Components/UI/Input/NumberInput.vue";
@@ -10,6 +10,7 @@ import { watch } from "vue";
 import useForm from "@/Hooks/useForm.js";
 import FormButton from "@/Components/UI/Buttons/FormButton.vue";
 import FormActions from "@/Components/UI/Form/FormActions.vue";
+import { PlusIcon } from "@heroicons/vue/20/solid/index.js";
 
 const props = defineProps({
     transactionType: { type: String },
@@ -198,18 +199,24 @@ defineExpose({ setModel, clear });
                     </div>
                 </div>
 
-                <q-btn
+                <Link
                     v-else
-                    :class="`!tw-bg-pastel !tw-py-4 !tw-rounded-md ${
+                    :class="`tw-bg-pastel tw-py-4 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-border ${
                         form.errors.category_id
-                            ? '!tw-border-2 !tw-border-solid !tw-border-red-600'
-                            : ''
+                            ? 'tw-border-red-600'
+                            : 'tw-border-light'
                     }`"
-                    icon="add"
-                    no-caps
-                    unelevated
-                    >Create new category
-                </q-btn>
+                    :href="
+                        route('settings', {
+                            show_form: 1,
+                            category_type: props.transactionType,
+                        })
+                    "
+                    as="button"
+                >
+                    <PlusIcon class="tw-w-6 tw-h-6" />
+                    Create new category
+                </Link>
 
                 <div
                     v-if="form.errors.category_id"
