@@ -4,6 +4,7 @@ defineProps({
     label: { type: String },
     error: { type: String },
     placeholder: { type: String },
+    type: { type: String, default: "text" },
 });
 const emit = defineEmits(["update:modelValue"]);
 
@@ -21,6 +22,7 @@ const onInput = (e) => {
                     : 'focus:tw-ring-indigo-500 focus:tw-ring-1 tw-border tw-border-light'
             }`"
             :placeholder="placeholder"
+            :type="type"
             :value="modelValue"
             @input="onInput"
         />

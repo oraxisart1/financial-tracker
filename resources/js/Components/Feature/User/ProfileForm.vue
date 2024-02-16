@@ -12,6 +12,9 @@ const quasar = useQuasar();
 const page = usePage();
 const form = useForm({
     name: page.props.auth.user.name,
+    currentPassword: "",
+    newPassword: "",
+    newPasswordConfirmation: "",
 });
 
 const emit = defineEmits(["cancel", "save"]);
@@ -26,7 +29,12 @@ const clear = () => {
 };
 
 const save = () => {
-    form.patch(route("profile.update"), {
+    form.transform((data) => ({
+        ...data,
+        current_password: form.currentPassword,
+        new_password: form.newPassword,
+        new_password_confirmation: form.newPasswordConfirmation,
+    })).patch(route("profile.update"), {
         onSuccess: () => {
             quasar.notify({
                 color: "positive",
@@ -34,6 +42,7 @@ const save = () => {
             });
 
             emit("save");
+            clear();
         },
         onError(errors) {
             if (!Object.values(errors).length) {
@@ -42,6 +51,12 @@ const save = () => {
                     message: "Something went wrong",
                 });
             }
+
+            form.reset(
+                "currentPassword",
+                "newPassword",
+                "newPasswordConfirmation",
+            );
         },
     });
 };
@@ -51,6 +66,30 @@ const save = () => {
     <Form title="Profile" @submit="save">
         <FormRow label="Name">
             <TextInput v-model="form.name" :error="form.errors.name" />
+        </FormRow>
+
+        <FormRow label="Current password">
+            <TextInput
+                v-model="form.currentPassword"
+                :error="form.errors.current_password"
+                type="password"
+            />
+        </FormRow>
+
+        <FormRow label="New password">
+            <TextInput
+                v-model="form.newPassword"
+                :error="form.errors.new_password"
+                type="password"
+            />
+        </FormRow>
+
+        <FormRow label="Confirm new password">
+            <TextInput
+                v-model="form.newPasswordConfirmation"
+                :error="form.errors.new_password"
+                type="password"
+            />
         </FormRow>
 
         <FormActions>

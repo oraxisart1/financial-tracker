@@ -13,7 +13,17 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        Auth::user()->update($request->validated());
+        $user = Auth::user();
+
+        $attributes = [
+            'name' => $request->input('name'),
+        ];
+
+        if ($request->input('new_password')) {
+            $attributes['password'] = bcrypt($request->input('new_password'));
+        }
+
+        $user->update($attributes);
 
         return redirect()->back();
     }

@@ -93,7 +93,7 @@ const openForm = () => {
 
     <div class="tw-grid tw-grid-cols-4 tw-gap-7.5 tw-p-7.5">
         <ProfileForm class="tw-col-span-2" />
-        <UserSettingsForm class="tw-col-span-2" />
+        <UserSettingsForm class="tw-col-span-2 tw-self-start" />
 
         <CategoryForm
             v-show="showForm"
