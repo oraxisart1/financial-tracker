@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TransactionsController;
+use App\Http\Controllers\UserSettingsController;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -76,6 +77,9 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('/profile', [ProfileController::class, 'update'])
         ->name('profile.update');
+
+    Route::patch('/user-settings', [UserSettingsController::class, 'update'])
+        ->name('user-settings.update');
 });
 
 Route::middleware('auth')->group(function () {
