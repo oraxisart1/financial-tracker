@@ -3,14 +3,16 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\DTO\TransactionDTO;
 use App\Enums\CategoryType;
 use App\Models\Account;
 use App\Models\AccountTransfer;
 use App\Models\Category;
 use App\Models\Currency;
-use App\Models\Transaction;
 use App\Models\User;
 use App\Services\AccountTransferService;
+use App\Services\TransactionService;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
 
@@ -52,17 +54,18 @@ class DatabaseSeeder extends Seeder
 
         foreach (Category::all() as $category) {
             for ($i = 0; $i < 20; $i++) {
-                $transaction = Transaction::factory()->make(
-                    [
-                        'user_id' => $user->id,
-                        'category_id' => $category->id,
-                        'type' => $category->type,
-                        'currency_id' => Currency::findByCode(fake()->currencyCode())->id,
-                    ]
-                );
-
                 $account = $user->accounts()->inRandomOrder()->first();
-                $account->addTransaction($transaction);
+                app(TransactionService::class)->createTransaction(
+                    new TransactionDTO(
+                        Carbon::parse(fake()->dateTimeThisYear()),
+                        fake()->randomFloat(2, 0, 1000),
+                        fake()->currencyCode(),
+                        $category->id,
+                        $account->id,
+                        $user->id,
+                        fake()->text(50)
+                    )
+                );
             }
         }
 
