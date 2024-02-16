@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CategoryType;
+use App\Http\Resources\CurrencyResource;
+use App\Models\Currency;
 use Auth;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,6 +22,8 @@ class SettingsController extends Controller
                     ->categories()
                     ->where('type', $categoryType)
                     ->get(),
+                'userSettings' => Auth::user()->settings()->with(['defaultCurrency'])->first(),
+                'currencies' => CurrencyResource::collection(Currency::all()),
             ]
         );
     }

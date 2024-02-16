@@ -76,4 +76,15 @@ class SettingsTest extends TestCase
             $inertia->has('categories', 3);
         });
     }
+
+    public function test_settings_recieve_user_settings()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('settings'));
+
+        $response->assertInertia(function (AssertableInertia $inertia) {
+            $inertia->has('userSettings');
+        });
+    }
 }

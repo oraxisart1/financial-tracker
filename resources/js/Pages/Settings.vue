@@ -10,6 +10,7 @@ import { useQuasar } from "quasar";
 import { PlusIcon } from "@heroicons/vue/24/outline/index.js";
 import CategoryForm from "@/Components/Feature/Category/CategoryForm.vue";
 import ProfileForm from "@/Components/Feature/User/ProfileForm.vue";
+import UserSettingsForm from "@/Components/Feature/User/UserSettingsForm.vue";
 
 const tabs = [
     {
@@ -92,7 +93,7 @@ const openForm = () => {
 
     <div class="tw-grid tw-grid-cols-4 tw-gap-7.5 tw-p-7.5">
         <ProfileForm class="tw-col-span-2" />
-        <Form class="tw-col-span-2" title="General Settings"></Form>
+        <UserSettingsForm class="tw-col-span-2" />
 
         <CategoryForm
             v-show="showForm"

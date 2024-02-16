@@ -19,7 +19,7 @@ const emit = defineEmits(["submit"]);
         </div>
 
         <form
-            class="tw-py-4 tw-px-8 tw-grid tw-grid-cols-[100px_1fr] tw-items-center tw-gap-y-6 tw-gap-x-12"
+            class="tw-py-4 tw-px-8 tw-grid tw-grid-cols-[120px_1fr] tw-items-center tw-gap-y-6 tw-gap-x-12"
             @submit.prevent="emit('submit', $event)"
         >
             <slot />
