@@ -57,7 +57,7 @@ const removeClickOutsideListener = () => {
             <div
                 v-if="show"
                 v-key-press="{ escape: escDismiss ? close : () => {} }"
-                class="tw-flex tw-justify-center tw-items-center tw-absolute tw-top-0 tw-right-0 tw-bottom-0 tw-left-0 tw-bg-opacity-40 tw-bg-stone-900"
+                class="tw-flex tw-justify-center tw-items-center tw-absolute tw-top-0 tw-right-0 tw-bottom-0 tw-left-0 tw-bg-opacity-40 tw-backdrop-blur-sm tw-bg-stone-900"
             >
                 <div ref="dialog" class="tw-shadow-lg tw-absolute tw-top-1/4">
                     <slot />

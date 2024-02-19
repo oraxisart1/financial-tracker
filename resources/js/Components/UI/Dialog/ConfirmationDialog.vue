@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import Dialog from "@/Components/UI/Dialog/Dialog.vue";
+import PrimaryButton from "@/Components/UI/Buttons/PrimaryButton.vue";
 
 const props = defineProps({
     escDismiss: {
@@ -77,28 +78,31 @@ defineExpose({ open });
     <Dialog v-model="show" :esc-dismiss="escDismiss">
         <div
             v-key-press="{ enter: submitOnEnterPress ? confirm : () => {} }"
-            class="tw-flex tw-flex-col tw-gap-8 tw-bg-light tw-rounded-xl tw-p-8"
+            class="tw-rounded-md tw-bg-pastel tw-w-[50vw]"
         >
-            <div class="tw-text-xl tw-font-semibold">
+            <div
+                class="tw-bg-teal tw-text-white tw-text-2xl tw-font-medium tw-text-center tw-p-3 tw-rounded-t-md"
+            >
                 {{ title }}
             </div>
 
-            <div class="tw-text-md tw-max-w-xl">
-                {{ message }}
-            </div>
+            <div
+                class="tw-flex tw-flex-col tw-gap-8 tw-pt-6 tw-pb-4 tw-items-center"
+            >
+                <div class="tw-text-sm tw-text-center">
+                    {{ message }}
+                </div>
 
-            <div class="tw-flex tw-gap-4">
-                <button
-                    v-for="button in buttons"
-                    :class="`tw-px-8 tw-py-3 tw-rounded-md ${
-                        button.type === 'confirm'
-                            ? 'tw-bg-red-600 hover:tw-bg-red-700 tw-text-light focus:tw-bg-red-700 tw-shadow-md '
-                            : 'tw-border-stone-500 hover:tw-bg-gray-300 focus:tw-bg-gray-300 tw-border tw-bg-light'
-                    }`"
-                    @click="handleButtonClick(button)"
-                >
-                    {{ button.label }}
-                </button>
+                <div class="tw-flex tw-gap-4">
+                    <PrimaryButton
+                        v-for="button in buttons"
+                        class="tw-py-3"
+                        size="medium"
+                        @click="handleButtonClick(button)"
+                    >
+                        {{ button.label }}
+                    </PrimaryButton>
+                </div>
             </div>
         </div>
     </Dialog>
