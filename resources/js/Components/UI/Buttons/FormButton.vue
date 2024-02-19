@@ -7,10 +7,14 @@ const props = defineProps({
         type: String,
         default: "button",
     },
+    active: {
+        type: Boolean,
+        default: null,
+    },
 });
 const buttonProps = computed(() => {
     return {
-        active: props.type === "submit",
+        active: props.type === "submit" && props.active !== false,
     };
 });
 </script>

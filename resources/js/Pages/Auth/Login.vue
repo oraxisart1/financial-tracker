@@ -1,33 +1,25 @@
 <script>
 import GuestLayout from "@/Layouts/GuestLayout.vue";
+import Form from "@/Components/UI/Form/Form.vue";
 
 export default {
     layout: GuestLayout,
-}
+};
 </script>
 
 <script setup>
 import Checkbox from "@/Components/Checkbox.vue";
-import GuestLayout from "@/Layouts/GuestLayout.vue";
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TextInput from "@/Components/TextInput.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
-
-defineProps({
-    canResetPassword: {
-        type: Boolean,
-    },
-    status: {
-        type: String,
-    },
-});
+import TextInput from "@/Components/UI/Input/TextInput.vue";
+import FormRow from "@/Components/UI/Form/FormRow.vue";
+import FormActions from "@/Components/UI/Form/FormActions.vue";
+import FormButton from "@/Components/UI/Buttons/FormButton.vue";
 
 const form = useForm({
     email: "",
     password: "",
-    remember: false,
+    remember: true,
 });
 
 const submit = () => {
@@ -38,63 +30,91 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Log in"/>
+    <Head title="Log in" />
 
-    <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-        {{ status }}
-    </div>
-
-    <form @submit.prevent="submit">
-        <div>
-            <InputLabel for="email" value="Email"/>
-
+    <Form class="tw-w-5/12" title="Sing in to FS" @submit="submit">
+        <FormRow label="E-mail">
             <TextInput
-                id="email"
                 v-model="form.email"
+                :error="form.errors.email"
                 autocomplete="username"
                 autofocus
-                class="mt-1 block w-full"
-                required
                 type="email"
             />
+        </FormRow>
 
-            <InputError :message="form.errors.email" class="mt-2"/>
-        </div>
-
-        <div class="mt-4">
-            <InputLabel for="password" value="Password"/>
-
+        <FormRow label="Password">
             <TextInput
-                id="password"
                 v-model="form.password"
+                :error="form.errors.password"
                 autocomplete="current-password"
-                class="mt-1 block w-full"
-                required
                 type="password"
             />
+        </FormRow>
 
-            <InputError :message="form.errors.password" class="mt-2"/>
-        </div>
+        <FormRow>
+            <div class="tw-flex tw-justify-between tw-items-center">
+                <label class="tw-flex tw-items-center">
+                    <Checkbox v-model:checked="form.remember" name="remember" />
+                    <span class="tw-ms-2 tw-text-sm tw-text-gray-600"
+                        >Remember</span
+                    >
+                </label>
 
-        <div class="block mt-4">
-            <label class="flex items-center">
-                <Checkbox v-model:checked="form.remember" name="remember"/>
-                <span class="ms-2 text-sm text-gray-600">Remember me</span>
-            </label>
-        </div>
+                <Link
+                    :href="route('password.request')"
+                    class="tw-underline tw-text-sm tw-font-semibold"
+                >
+                    Forgot your password?
+                </Link>
+            </div>
+        </FormRow>
 
-        <div class="flex items-center justify-end mt-4">
-            <Link
-                v-if="canResetPassword"
-                :href="route('password.request')"
-                class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-                Forgot your password?
-            </Link>
+        <FormActions>
+            <FormButton :active="false" type="submit">Sign in</FormButton>
+        </FormActions>
 
-            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="ms-4">
-                Log in
-            </PrimaryButton>
-        </div>
-    </form>
+        <FormActions>
+            <div>
+                <span>Don't have an account?</span>
+                <Link
+                    :href="route('register')"
+                    class="tw-underline tw-text-sm tw-font-semibold tw-ml-2"
+                    >Register
+                </Link>
+            </div>
+        </FormActions>
+    </Form>
+
+    <!--    <form class="tw-w-1/2" @submit.prevent="submit">-->
+    <!--        <div></div>-->
+
+    <!--        <div class="tw-mt-4"></div>-->
+
+    <!--        <div class="tw-block tw-mt-4">-->
+    <!--            <label class="tw-flex tw-items-center">-->
+    <!--                <Checkbox v-model:checked="form.remember" name="remember" />-->
+    <!--                <span class="tw-ms-2 tw-text-sm tw-text-gray-600"-->
+    <!--                    >Remember me</span-->
+    <!--                >-->
+    <!--            </label>-->
+    <!--        </div>-->
+
+    <!--        <div class="tw-flex tw-items-center tw-justify-end tw-mt-4">-->
+    <!--            <Link-->
+    <!--                :href="route('password.request')"-->
+    <!--                class="tw-underline tw-text-sm tw-text-gray-600 tw-hover:text-gray-900 tw-rounded-md tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-offset-2 tw-focus:ring-indigo-500"-->
+    <!--            >-->
+    <!--                Forgot your password?-->
+    <!--            </Link>-->
+
+    <!--            <PrimaryButton-->
+    <!--                :class="{ 'tw-opacity-25': form.processing }"-->
+    <!--                :disabled="form.processing"-->
+    <!--                class="tw-ms-4"-->
+    <!--            >-->
+    <!--                Log in-->
+    <!--            </PrimaryButton>-->
+    <!--        </div>-->
+    <!--    </form>-->
 </template>
