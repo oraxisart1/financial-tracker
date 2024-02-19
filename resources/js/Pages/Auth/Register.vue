@@ -3,16 +3,18 @@ import GuestLayout from "@/Layouts/GuestLayout.vue";
 
 export default {
     layout: GuestLayout,
-}
+};
 </script>
 
 <script setup>
-import GuestLayout from "@/Layouts/GuestLayout.vue";
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TextInput from "@/Components/TextInput.vue";
-import { Head, Link, useForm } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
+import FormRow from "@/Components/UI/Form/FormRow.vue";
+import Checkbox from "@/Components/Checkbox.vue";
+import FormActions from "@/Components/UI/Form/FormActions.vue";
+import FormButton from "@/Components/UI/Buttons/FormButton.vue";
+import useForm from "@/Hooks/useForm.js";
+import Form from "@/Components/UI/Form/Form.vue";
+import TextInput from "@/Components/UI/Input/TextInput.vue";
 
 const form = useForm({
     name: "",
@@ -29,81 +31,60 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Register"/>
+    <Head title="Register" />
 
-    <form @submit.prevent="submit">
-        <div>
-            <InputLabel for="name" value="Name"/>
-
+    <Form class="tw-w-5/12" title="Sing up to FS" @submit="submit">
+        <FormRow label="Profile name">
             <TextInput
-                id="name"
                 v-model="form.name"
-                autocomplete="name"
+                :error="form.errors.name"
                 autofocus
-                class="mt-1 block w-full"
-                required
-                type="text"
             />
+        </FormRow>
 
-            <InputError :message="form.errors.name" class="mt-2"/>
-        </div>
-
-        <div class="mt-4">
-            <InputLabel for="email" value="Email"/>
-
+        <FormRow label="E-mail">
             <TextInput
-                id="email"
                 v-model="form.email"
+                :error="form.errors.email"
                 autocomplete="username"
-                class="mt-1 block w-full"
-                required
+                autofocus
                 type="email"
             />
+        </FormRow>
 
-            <InputError :message="form.errors.email" class="mt-2"/>
-        </div>
-
-        <div class="mt-4">
-            <InputLabel for="password" value="Password"/>
-
+        <FormRow label="Password">
             <TextInput
-                id="password"
                 v-model="form.password"
+                :error="form.errors.password"
                 autocomplete="new-password"
-                class="mt-1 block w-full"
-                required
                 type="password"
             />
+        </FormRow>
 
-            <InputError :message="form.errors.password" class="mt-2"/>
-        </div>
-
-        <div class="mt-4">
-            <InputLabel for="password_confirmation" value="Confirm Password"/>
-
+        <FormRow label="Confirm password">
             <TextInput
-                id="password_confirmation"
                 v-model="form.password_confirmation"
+                :error="form.errors.password"
                 autocomplete="new-password"
-                class="mt-1 block w-full"
-                required
                 type="password"
             />
+        </FormRow>
 
-            <InputError :message="form.errors.password_confirmation" class="mt-2"/>
-        </div>
+        <FormActions>
+            <FormButton :active="false" type="submit" width="300px"
+                >Create new account
+            </FormButton>
+        </FormActions>
 
-        <div class="flex items-center justify-end mt-4">
-            <Link
-                :href="route('login')"
-                class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-                Already registered?
-            </Link>
-
-            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="ms-4">
-                Register
-            </PrimaryButton>
-        </div>
-    </form>
+        <FormActions>
+            <div>
+                <span>Already have an account?</span>
+                <Link
+                    :href="route('login')"
+                    class="tw-underline tw-text-sm tw-font-semibold tw-ml-2"
+                    >Sign in
+                </Link>
+            </div>
+        </FormActions>
+    </Form>
 </template>

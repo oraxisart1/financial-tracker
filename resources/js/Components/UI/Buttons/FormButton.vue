@@ -11,6 +11,10 @@ const props = defineProps({
         type: Boolean,
         default: null,
     },
+    width: {
+        type: String,
+        default: "200px",
+    },
 });
 const buttonProps = computed(() => {
     return {
@@ -23,9 +27,9 @@ const buttonProps = computed(() => {
     <PrimaryButton
         :="buttonProps"
         :type="type"
+        :width="width"
         class="tw-py-3"
         size="medium"
-        width="200px"
     >
         <slot />
     </PrimaryButton>
