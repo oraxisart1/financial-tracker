@@ -3,16 +3,19 @@ import GuestLayout from "@/Layouts/GuestLayout.vue";
 
 export default {
     layout: GuestLayout,
-}
+};
 </script>
 
 <script setup>
-import GuestLayout from "@/Layouts/GuestLayout.vue";
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TextInput from "@/Components/TextInput.vue";
-import { Head, useForm } from "@inertiajs/vue3";
+import { Head } from "@inertiajs/vue3";
+import FormButton from "@/Components/UI/Buttons/FormButton.vue";
+import FormRow from "@/Components/UI/Form/FormRow.vue";
+import FormActions from "@/Components/UI/Form/FormActions.vue";
+import useForm from "@/Hooks/useForm.js";
+import TextInput from "@/Components/UI/Input/TextInput.vue";
+import { ref } from "vue";
+import { Link } from "@inertiajs/vue3";
+import Form from "@/Components/UI/Form/Form.vue";
 
 defineProps({
     status: {
@@ -23,45 +26,53 @@ defineProps({
 const form = useForm({
     email: "",
 });
+const sent = ref(false);
 
 const submit = () => {
-    form.post(route("password.email"));
+    form.post(route("password.email"), {
+        onSuccess: () => {
+            sent.value = true;
+        },
+    });
 };
 </script>
 
 <template>
-    <Head title="Forgot Password"/>
+    <Head title="Forgot Password" />
 
-    <div class="mb-4 text-sm text-gray-600">
-        Forgot your password? No problem. Just let us know your email address and we will email you a password reset
-        link that will allow you to choose a new one.
-    </div>
+    <Form class="tw-w-5/12" title="Password recovery" @submit="submit">
+        <template v-if="!sent">
+            <FormRow label="E-mail">
+                <TextInput
+                    v-model="form.email"
+                    :error="form.errors.email"
+                    autocomplete="username"
+                    autofocus
+                    type="email"
+                />
+            </FormRow>
 
-    <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-        {{ status }}
-    </div>
+            <FormActions>
+                <span>The password reset link will be send to your email.</span>
+            </FormActions>
 
-    <form @submit.prevent="submit">
-        <div>
-            <InputLabel for="email" value="Email"/>
+            <FormActions>
+                <FormButton :active="false" type="submit">Send</FormButton>
+            </FormActions>
+        </template>
 
-            <TextInput
-                id="email"
-                v-model="form.email"
-                autocomplete="username"
-                autofocus
-                class="mt-1 block w-full"
-                required
-                type="email"
-            />
+        <template v-else>
+            <FormActions>
+                <span>The password reset link was sent to your email.</span>
+            </FormActions>
 
-            <InputError :message="form.errors.email" class="mt-2"/>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                Email Password Reset Link
-            </PrimaryButton>
-        </div>
-    </form>
+            <FormActions>
+                <Link
+                    :href="route('login')"
+                    class="tw-bg-navigation-inactive tw-text-2xl tw-text-white tw-font-semibold tw-p-3 tw-rounded-md"
+                    >To login page
+                </Link>
+            </FormActions>
+        </template>
+    </Form>
 </template>
