@@ -2,8 +2,9 @@
     <NavLink :href="route('dashboard')">
         <img
             alt="Application logo"
-            class="tw-w-14 tw-h-14"
-            src="/assets/image/short-logo.svg"
+            class="tw-mt-5"
+            src="/assets/image/full-logo.svg"
+            width="200px"
         />
     </NavLink>
 </template>
