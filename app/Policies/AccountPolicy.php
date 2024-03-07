@@ -7,12 +7,22 @@ use App\Models\User;
 
 class AccountPolicy
 {
+    public function create(): bool
+    {
+        return true;
+    }
+
+    public function viewAny(): bool
+    {
+        return true;
+    }
+
     public function update(User $user, Account $account): bool
     {
         return $user->id === $account->user_id;
     }
 
-    public function destroy(User $user, Account $account): bool
+    public function delete(User $user, Account $account): bool
     {
         return $user->id === $account->user_id;
     }

@@ -31,7 +31,7 @@ const rowButtons = [
             if (ok) {
                 router.delete(
                     route("account-transfers.destroy", {
-                        accountTransfer: row.id,
+                        account_transfer: row.id,
                     }),
                     {
                         onSuccess: () => {

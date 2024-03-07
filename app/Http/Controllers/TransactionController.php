@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\DTO\TransactionDTO;
-use App\Enums\TransactionType;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Transaction;
 use App\Services\TransactionService;
 
-class TransactionsController extends Controller
+class TransactionController extends Controller
 {
     public function __construct(private readonly TransactionService $transactionService)
     {
+        $this->authorizeResource(Transaction::class);
     }
 
     public function store(StoreTransactionRequest $request)

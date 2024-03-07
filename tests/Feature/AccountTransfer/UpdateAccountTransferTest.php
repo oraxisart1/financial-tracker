@@ -48,7 +48,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->from(route('accounts.index'))->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             [
                 'account_from_id' => $accountFrom->id,
@@ -96,7 +96,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             [
                 'account_from_id' => Account::factory()->create()->id,
@@ -138,7 +138,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             [
                 'account_from_id' => Account::factory()->create()->id,
@@ -204,7 +204,7 @@ class UpdateAccountTransferTest extends TestCase
         $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'account_from_id' => $newAccountFrom->id,
@@ -237,7 +237,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'account_from_id' => '',
@@ -261,7 +261,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'account_from_id' => 9999,
@@ -286,7 +286,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'account_from_id' => $otherAccount->id,
@@ -310,7 +310,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'account_to_id' => '',
@@ -334,7 +334,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'account_to_id' => 9999,
@@ -359,7 +359,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'account_to_id' => $otherAccount->id,
@@ -382,7 +382,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'amount' => '',
@@ -405,7 +405,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'amount' => 'not-numeric',
@@ -428,7 +428,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'amount' => 0,
@@ -461,7 +461,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'converted_amount' => '',
@@ -495,7 +495,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'converted_amount' => '',
@@ -520,7 +520,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'converted_amount' => 'not-numeric',
@@ -543,7 +543,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'converted_amount' => 0,
@@ -566,7 +566,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'date' => '',
@@ -589,7 +589,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'date' => 'not-valid-date',
@@ -612,7 +612,7 @@ class UpdateAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->patch(
             route(
                 'account-transfers.update',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             ),
             $this->validParams([
                 'description' => '',

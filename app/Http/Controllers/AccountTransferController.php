@@ -11,10 +11,11 @@ use App\Services\AccountTransferService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
-class AccountTransfersController extends Controller
+class AccountTransferController extends Controller
 {
     public function __construct(private readonly AccountTransferService $accountTransferService)
     {
+        $this->authorizeResource(AccountTransfer::class);
     }
 
     public function store(StoreAccountTransferRequest $request)

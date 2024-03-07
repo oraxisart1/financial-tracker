@@ -6,9 +6,15 @@ use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
 use Auth;
+use Illuminate\Http\RedirectResponse;
 
-class CategoriesController extends Controller
+class CategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Category::class);
+    }
+
     public function store(StoreCategoryRequest $request)
     {
         Category::create([
@@ -18,14 +24,14 @@ class CategoriesController extends Controller
         return redirect()->back();
     }
 
-    public function update(UpdateCategoryRequest $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category): RedirectResponse
     {
         $category->update($request->validated());
 
         return redirect()->back();
     }
 
-    public function destroy(Category $category)
+    public function destroy(Category $category): RedirectResponse
     {
         $category->delete();
 

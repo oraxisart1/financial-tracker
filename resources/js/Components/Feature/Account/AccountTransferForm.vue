@@ -81,7 +81,7 @@ const save = () => {
 
     if (form.id) {
         transformed.patch(
-            route("account-transfers.update", { accountTransfer: form.id }),
+            route("account-transfers.update", { account_transfer: form.id }),
             options,
         );
     } else {

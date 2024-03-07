@@ -23,7 +23,7 @@ class DeleteAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->from(route('accounts.index'))->delete(
             route(
                 'account-transfers.destroy',
-                ['accountTransfer' => $accountTransfer]
+                ['account_transfer' => $accountTransfer]
             )
         );
 
@@ -41,7 +41,7 @@ class DeleteAccountTransferTest extends TestCase
         $response = $this->actingAs($user)->delete(
             route(
                 'account-transfers.destroy',
-                ['accountTransfer' => $accountTransfer]
+                ['account_transfer' => $accountTransfer]
             )
         );
 
@@ -58,7 +58,7 @@ class DeleteAccountTransferTest extends TestCase
         $response = $this->delete(
             route(
                 'account-transfers.destroy',
-                ['accountTransfer' => $accountTransfer]
+                ['account_transfer' => $accountTransfer]
             )
         );
 
@@ -96,7 +96,7 @@ class DeleteAccountTransferTest extends TestCase
         $this->actingAs($user)->delete(
             route(
                 'account-transfers.destroy',
-                ['accountTransfer' => $transfer]
+                ['account_transfer' => $transfer]
             )
         );
 

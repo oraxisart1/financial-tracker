@@ -21,9 +21,9 @@ class DeleteTransactionTest extends TestCase
     public function test_user_can_delete_their_own_transaction(): void
     {
         $user = User::factory()->create();
-        $transaction = Transaction::factory()->create([
-            'user_id' => $user->id,
-        ]);
+        $transaction = $user->transactions()->save(
+            Transaction::factory()->create()
+        );
 
         $response = $this->actingAs($user)->from(route('dashboard'))->delete(
             route(

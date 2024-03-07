@@ -7,12 +7,17 @@ use App\Models\User;
 
 class CategoryPolicy
 {
+    public function create()
+    {
+        return true;
+    }
+
     public function update(User $user, Category $category): bool
     {
         return $user->id === $category->user_id;
     }
 
-    public function destroy(User $user, Category $category): bool
+    public function delete(User $user, Category $category): bool
     {
         return $user->id === $category->user_id;
     }

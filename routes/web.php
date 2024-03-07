@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\AccountsController;
-use App\Http\Controllers\AccountTransfersController;
-use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AccountTransferController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\TransactionsController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserSettingsController;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -31,47 +31,39 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    Route::post('/transactions', [TransactionsController::class, 'store'])
-        ->name('transactions.store');
-    Route::patch('/transactions/{transaction}', [TransactionsController::class, 'update'])
-        ->name('transactions.update')
-        ->middleware('can:update,transaction');
-    Route::delete('/transactions/{transaction}', [TransactionsController::class, 'destroy'])
-        ->name('transactions.destroy')
-        ->middleware('can:destroy,transaction');
+    Route::resource('transactions', TransactionController::class)
+        ->only([
+            'store',
+            'update',
+            'destroy',
+        ]);
 
-    Route::post('/categories', [CategoriesController::class, 'store'])
-        ->name('categories.store');
-    Route::patch('/categories/{category}', [CategoriesController::class, 'update'])
-        ->middleware('can:update,category')
-        ->name('categories.update');
-    Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])
-        ->middleware('can:destroy,category')
-        ->name('categories.destroy');
+    Route::resource('categories', CategoryController::class)
+        ->only([
+            'store',
+            'update',
+            'destroy',
+        ]);
 
-    Route::get('/accounts', [AccountsController::class, 'index'])
-        ->name('accounts.index');
-    Route::post('/accounts', [AccountsController::class, 'store'])
-        ->name('accounts.store');
-    Route::patch('/accounts/{account}', [AccountsController::class, 'update'])
-        ->name('accounts.update')
-        ->middleware('can:update,account');
-    Route::delete('/accounts/{account}/{mode?}', [AccountsController::class, 'destroy'])
-        ->name('accounts.destroy')
-        ->middleware('can:destroy,account');
-    Route::post('/accounts/{account}/toggle', [AccountsController::class, 'toggle'])
+    Route::post('/accounts/{account}/toggle', [AccountController::class, 'toggle'])
         ->name('accounts.toggle')
         ->middleware('can:toggle,account');
+    Route::delete('/accounts/{account}/{mode?}', [AccountController::class, 'destroy'])
+        ->name('accounts.destroy')
+        ->middleware('can:delete,account');
+    Route::resource('accounts', AccountController::class)
+        ->only([
+            'index',
+            'store',
+            'update',
+        ]);
 
-    Route::post('/account-transfers', [AccountTransfersController::class, 'store'])
-        ->name('account-transfers.store');
-
-    Route::delete('/account-transfers/{accountTransfer}', [AccountTransfersController::class, 'destroy'])
-        ->name('account-transfers.destroy')
-        ->middleware('can:destroy,accountTransfer');
-    Route::patch('/account-transfers/{accountTransfer}', [AccountTransfersController::class, 'update'])
-        ->name('account-transfers.update')
-        ->middleware('can:update,accountTransfer');
+    Route::resource('account-transfers', AccountTransferController::class)
+        ->only([
+            'store',
+            'update',
+            'destroy',
+        ]);
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
 
@@ -80,13 +72,6 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('/user-settings', [UserSettingsController::class, 'update'])
         ->name('user-settings.update');
-});
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';

@@ -15,10 +15,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class AccountsController extends Controller
+class AccountController extends Controller
 {
     public function __construct(private readonly AccountService $accountService)
     {
+        $this->authorizeResource(Account::class);
     }
 
     public function store(StoreAccountRequest $request)

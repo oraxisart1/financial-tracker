@@ -7,12 +7,17 @@ use App\Models\User;
 
 class TransactionPolicy
 {
+    public function create(): bool
+    {
+        return true;
+    }
+
     public function update(User $user, Transaction $transaction): bool
     {
         return $user->id === $transaction->user_id;
     }
 
-    public function destroy(User $user, Transaction $transaction): bool
+    public function delete(User $user, Transaction $transaction): bool
     {
         return $user->id === $transaction->user_id;
     }
